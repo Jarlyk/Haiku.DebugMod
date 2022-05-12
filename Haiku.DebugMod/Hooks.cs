@@ -31,6 +31,16 @@ namespace Haiku.DebugMod {
                 MiniDebugUI.ShowStats = !MiniDebugUI.ShowStats;
             }
 
+            if (Input.GetKeyDown(KeyCode.F6))
+            {
+                SaveStates.SaveStatesManager.SaveState();
+            }
+
+            if (Input.GetKeyDown(KeyCode.F7))
+            {
+                SaveStates.SaveStatesManager.LoadState();
+            }
+
             //TODO: Zoom
             //CameraFollow
             //Savepoint warping
