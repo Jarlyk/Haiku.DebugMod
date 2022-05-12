@@ -5,14 +5,12 @@ using UnityEngine.SceneManagement;
 
 namespace Haiku.DebugMod.SaveStates {
     class SaveStatesManager {
-        public static readonly string debugPath = Application.persistentDataPath + "/Debug";
-
         public static void SaveState() {
-            SaveData.Save(debugPath + "/SaveState/saveData.haiku");
+            SaveData.Save(Settings.debugPath + "/SaveState/saveData.haiku");
         }
 
         public static void LoadState() {
-            SaveData.Load(debugPath + "/SaveState/saveData.haiku");
+            SaveData.Load(Settings.debugPath + "/SaveState/saveData.haiku");
             if (!SaveData.localSaveData.TryGetValue("sceneToLoad", out int scene)) return;
             GameManager.instance.StartCoroutine(LoadScene(scene));
         }

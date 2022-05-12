@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using BepInEx;
+using BepInEx.Configuration;
 using UnityEngine;
 
 namespace Haiku.DebugMod
@@ -13,6 +14,8 @@ namespace Haiku.DebugMod
     {
         public void Awake()
         {
+            // Use BaseUnityPlugin.Config so that ConfigManager works
+            Settings.initSettings(Config);
             On.GameManager.Start += GameManagerStart;
             On.GameManager.Update += GameManagerUpdate;
         }

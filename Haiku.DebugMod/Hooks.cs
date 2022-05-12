@@ -16,27 +16,27 @@ namespace Haiku.DebugMod {
         }
 
         public static void Update() {
-            if (Input.GetKeyDown(KeyCode.F2)) {
+            if (Settings.Invuln.Value.IsDown()) {
                 MiniCheats.Invuln = !MiniCheats.Invuln;
             }
-            if (Input.GetKeyDown(KeyCode.F3)) {
+            if (Settings.IgnoreHeat.Value.IsDown()) {
                 MiniCheats.IgnoreHeat = !MiniCheats.IgnoreHeat;
             }
 
-            if (Input.GetKeyDown(KeyCode.F4)) {
+            if (Settings.ShowHitboxes.Value.IsDown()) {
                 HitboxRendering.ShowHitboxes = !HitboxRendering.ShowHitboxes;
             }
 
-            if (Input.GetKeyDown(KeyCode.F5)) {
+            if (Settings.ShowStats.Value.IsDown()) {
                 MiniDebugUI.ShowStats = !MiniDebugUI.ShowStats;
             }
 
-            if (Input.GetKeyDown(KeyCode.F6))
+            if (Settings.SaveState.Value.IsDown())
             {
                 SaveStates.SaveStatesManager.SaveState();
             }
 
-            if (Input.GetKeyDown(KeyCode.F7))
+            if (Settings.LoadState.Value.IsDown())
             {
                 SaveStates.SaveStatesManager.LoadState();
             }
