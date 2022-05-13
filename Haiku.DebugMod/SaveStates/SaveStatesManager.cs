@@ -76,19 +76,16 @@ namespace Haiku.DebugMod.SaveStates {
             PlayerScript.instance.DisableMovementFor(0.35f);
             CameraBehavior.instance.TransitionState(true);
             GameManager.instance.UpdateUpgradeAbilityBooleans();
+            PlayerScript.instance.transform.position = new Vector3(1000f, 100f);
             AsyncOperation operation = SceneManager.LoadSceneAsync(sceneIndex);
             while (!operation.isDone) {
                 Mathf.Clamp01(operation.progress / 0.9f);
                 yield return null;
             }
             CameraBehavior.instance.TransitionState(false);
-
-            // Adjustments for SaveStates
-            if (SaveData.localSaveData["savedHealth"] - PlayerHealth.instance.currentHealth != 0) {
-                PlayerHealth.instance.AddHealth(SaveData.localSaveData["savedHealth"] - PlayerHealth.instance.currentHealth);
-            }
             if (SaveData.lastPosition != new Vector2())
                 PlayerScript.instance.transform.position = SaveData.lastPosition;
+            yield return new WaitForSeconds(0.2f);
             yield break;
         }
     }

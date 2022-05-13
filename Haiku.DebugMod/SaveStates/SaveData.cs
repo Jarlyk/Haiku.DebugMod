@@ -354,7 +354,11 @@ namespace Haiku.DebugMod.SaveStates {
             GameManager.instance.showVendors = es3SaveFile.Load<bool>("showVendors", false);
             GameManager.instance.showTrainStations = es3SaveFile.Load<bool>("showTrainStations", false);
             localSaveData.Add("sceneToLoad", es3SaveFile.Load<int>("sceneToLoad", -1));
-            localSaveData.Add("savedHealth", es3SaveFile.Load<int>("savedHealth", -1));
+            int savedHealth = es3SaveFile.Load<int>("savedHealth", -1);
+            if (savedHealth - PlayerHealth.instance.currentHealth != 0)
+            {
+                PlayerHealth.instance.AddHealth(SaveData.localSaveData["savedHealth"] - PlayerHealth.instance.currentHealth);
+            }
             lastPosition = es3SaveFile.Load<Vector2>("lastPosition", new Vector2());
             ManaManager.instance.currentRotation = es3SaveFile.Load<float>("heatStatus", 405f);
             PlayerScript.instance.canChangeChips = es3SaveFile.Load<bool>("canChangeChips", false);
