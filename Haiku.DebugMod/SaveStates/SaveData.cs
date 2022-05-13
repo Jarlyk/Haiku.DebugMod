@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,8 +10,36 @@ namespace Haiku.DebugMod.SaveStates {
         internal static Dictionary<string, int> localSaveData;
         internal static Vector2 lastPosition;
 
-        internal static void Save(string filePath) {
+        private static string[] fileNameData = new string[10];
+
+        public static void initSaveStates()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                string path = Settings.debugPath + $"/SaveState/{i}/fileNameList.haiku";
+                if (File.Exists(path)) continue;
+                es3SaveFile = new ES3File(path);
+                for (int j = 0; j < fileNameData.Length; j++)
+                {
+                    es3SaveFile.Save<string>($"fileName{j}", "No Save Data");
+                }
+                es3SaveFile.Sync();
+            }
+        }
+
+        internal static void Save(string filePath, int slot = -1) {
             es3SaveFile = new ES3File(filePath);
+            var activeScene = SceneManager.GetActiveScene();
+            string name = "No info";
+            if (activeScene.IsValid())
+            {
+                name = $"Scene {activeScene.buildIndex} {activeScene.name}";
+            }
+            if (slot != -1)
+            {
+                fileNameData[slot] = name;
+            }
+            //es3SaveFile.Save<string>("fileName", name);
             es3SaveFile.Save<int>("savePointSceneIndex", GameManager.instance.savePointSceneIndex);
             es3SaveFile.Save<int>("maxHealth", GameManager.instance.maxHealth);
             es3SaveFile.Save<int>("coolingPoints", GameManager.instance.coolingPoints);
@@ -145,6 +174,41 @@ namespace Haiku.DebugMod.SaveStates {
             es3SaveFile.Save<int>("savedHealth", PlayerHealth.instance.currentHealth);
             es3SaveFile.Save<Vector2>("lastPosition", PlayerScript.instance.lastPositionOnPlatform);
             es3SaveFile.Sync();
+        }
+
+        public static void saveFileNames(string filePath, int slot)
+        {
+            es3SaveFile = new ES3File(filePath);
+            es3SaveFile.Save<string>($"fileName{slot}", fileNameData[slot]);
+            es3SaveFile.Sync();
+        }
+
+        public static string[] loadFileName(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                Debug.LogWarning($"Couldn't find File at{filePath}");
+                return createEmptyFileNames();
+            }
+            es3SaveFile = new ES3File(filePath);
+            string[] result = new string[fileNameData.Length];
+            for (int i = 0; i < fileNameData.Length; i++)
+            {
+                result[i] = es3SaveFile.Load<string>($"fileName{i}");
+                fileNameData[i] = result[i];
+            }
+            es3SaveFile.Sync();
+            return result;
+        }
+
+        private static string[] createEmptyFileNames()
+        {
+            string[] result = new string[fileNameData.Length];
+            for (int i = 0; i < fileNameData.Length; i++)
+            {
+                result[i] = "No Save Data";
+            }
+            return result;
         }
 
         internal static void Load(string filePath) {

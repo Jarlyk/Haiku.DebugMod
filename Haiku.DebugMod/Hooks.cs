@@ -1,7 +1,10 @@
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using BepInEx;
+using BepInEx.Configuration;
 using UnityEngine;
 
 namespace Haiku.DebugMod {
@@ -13,9 +16,13 @@ namespace Haiku.DebugMod {
             IL.PlayerHealth.TakeDamage += UpdateTakeDamage;
             IL.PlayerHealth.StunAndTakeDamage += UpdateTakeDamage;
             IL.ManaManager.AddHeat += UpdateAddHeat;
+
+            SaveStates.SaveData.initSaveStates();
         }
 
         public static void Update() {
+
+            #region Cheats
             if (Settings.Invuln.Value.IsDown()) {
                 MiniCheats.Invuln = !MiniCheats.Invuln;
             }
@@ -30,16 +37,57 @@ namespace Haiku.DebugMod {
             if (Settings.ShowStats.Value.IsDown()) {
                 MiniDebugUI.ShowStats = !MiniDebugUI.ShowStats;
             }
+            #endregion
 
-            if (Settings.SaveState.Value.IsDown())
+            #region SaveStates
+            if (Settings.MemorySaveState.Value.IsDown())
             {
                 SaveStates.SaveStatesManager.SaveState();
             }
-
-            if (Settings.LoadState.Value.IsDown())
+            if (Settings.MemoryLoadState.Value.IsDown())
             {
                 SaveStates.SaveStatesManager.LoadState();
             }
+
+            foreach (KeyValuePair<int,ConfigEntry<KeyboardShortcut>> valuePair in Settings.SaveStateSlots)
+            {
+                if (valuePair.Value.Value.IsDown())
+                {
+                    SaveStates.SaveStatesManager.SaveState(valuePair.Key);
+                }
+            }
+
+            foreach (KeyValuePair<int, ConfigEntry<KeyboardShortcut>> valuePair in Settings.LoadStateSlots)
+            {
+                if (valuePair.Value.Value.IsDown())
+                {
+                    SaveStates.SaveStatesManager.LoadState(valuePair.Key);
+                }
+            }
+
+            if (Settings.showStates.Value.IsDown())
+            {
+                if (!SaveStates.SaveStatesManager.showFiles)
+                {
+                    MiniDebugUI.findFileNames();
+                    SaveStates.SaveStatesManager.showFiles = !SaveStates.SaveStatesManager.showFiles;
+                }
+                else
+                {
+                    SaveStates.SaveStatesManager.showFiles = !SaveStates.SaveStatesManager.showFiles;
+                }
+            }
+
+            if (Settings.PageNext.Value.IsDown()) {
+                SaveStates.SaveStatesManager.nextPage();
+                if (SaveStates.SaveStatesManager.showFiles) MiniDebugUI.findFileNames();
+            }
+            if (Settings.PagePrevious.Value.IsDown())
+            {
+                SaveStates.SaveStatesManager.previousPage();
+                if (SaveStates.SaveStatesManager.showFiles) MiniDebugUI.findFileNames();
+            }
+            #endregion
 
             //TODO: Zoom
             //CameraFollow
