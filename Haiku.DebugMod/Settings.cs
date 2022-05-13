@@ -68,8 +68,8 @@ namespace Haiku.DebugMod
             showStates = config.Bind("SaveStates", "ShowStates", new KeyboardShortcut(KeyCode.F11), setPosition(4));
             nameNextSave = config.Bind(new ConfigDefinition("SaveStates","Name Next Save"), "Insert Name", setPosition(1));
 
-            config.Bind("Website", "", "https://github.com/Jarlyk/Haiku.DebugMod", new ConfigDescription("Open Website", null, 
-                new ConfigurationManagerAttributes { CustomDrawer = OpenWebsiteDrawer, ReadOnly = true, HideDefaultButton = true}));
+            config.Bind("Website", "Url", "https://github.com/Jarlyk/Haiku.DebugMod", new ConfigDescription("Open Website", null,
+                new ConfigurationManagerAttributes { CustomDrawer = OpenWebsiteDrawer, ReadOnly = true, HideDefaultButton = true, HideSettingName = true }));
 
             config.Save();
         }
@@ -77,6 +77,8 @@ namespace Haiku.DebugMod
 
         private static void OpenWebsiteDrawer(ConfigEntryBase entry)
         {
+            //Create an Empty Label to Position the Button
+            GUILayout.Label(new GUIContent(""), GUILayout.Width(275));
             if (GUILayout.Button(new GUIContent("URL", "https://github.com/Jarlyk/Haiku.DebugMod"), GUI.skin.button, GUILayout.ExpandWidth(false))) {
                 Process.Start("https://github.com/Jarlyk/Haiku.DebugMod");
             }
