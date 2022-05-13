@@ -173,6 +173,7 @@ namespace Haiku.DebugMod.SaveStates {
             es3SaveFile.Save<int>("sceneToLoad", SceneManager.GetActiveScene().buildIndex);
             es3SaveFile.Save<int>("savedHealth", PlayerHealth.instance.currentHealth);
             es3SaveFile.Save<Vector2>("lastPosition", PlayerScript.instance.lastPositionOnPlatform);
+            es3SaveFile.Save<float>("heatStatus", ManaManager.instance.currentRotation);
             es3SaveFile.Sync();
         }
 
@@ -347,6 +348,7 @@ namespace Haiku.DebugMod.SaveStates {
             localSaveData.Add("sceneToLoad", es3SaveFile.Load<int>("sceneToLoad", -1));
             localSaveData.Add("savedHealth", es3SaveFile.Load<int>("savedHealth", -1));
             lastPosition = es3SaveFile.Load<Vector2>("lastPosition", new Vector2());
+            ManaManager.instance.currentRotation = es3SaveFile.Load<float>("heatStatus");
         }
     }
 }
