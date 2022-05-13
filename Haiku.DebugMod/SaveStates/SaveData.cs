@@ -174,13 +174,21 @@ namespace Haiku.DebugMod.SaveStates {
             es3SaveFile.Save<int>("savedHealth", PlayerHealth.instance.currentHealth);
             es3SaveFile.Save<Vector2>("lastPosition", PlayerScript.instance.lastPositionOnPlatform);
             es3SaveFile.Save<float>("heatStatus", ManaManager.instance.currentRotation);
+            es3SaveFile.Save<bool>("canChangeChips", PlayerScript.instance.canChangeChips);
+            es3SaveFile.Save<float>("isInvunerableTimer", PlayerScript.instance.isInvunerableTimer);
             es3SaveFile.Sync();
         }
 
         public static void saveFileNames(string filePath, int slot)
         {
             es3SaveFile = new ES3File(filePath);
-            es3SaveFile.Save<string>($"fileName{slot}", fileNameData[slot]);
+            if (Settings.nameNextSave.Value.Equals("Insert Name"))
+            {
+                es3SaveFile.Save<string>($"fileName{slot}", fileNameData[slot]);
+            } else
+            {
+                es3SaveFile.Save<string>($"fileName{slot}", Settings.nameNextSave.Value);
+            }
             es3SaveFile.Sync();
         }
 
@@ -348,7 +356,9 @@ namespace Haiku.DebugMod.SaveStates {
             localSaveData.Add("sceneToLoad", es3SaveFile.Load<int>("sceneToLoad", -1));
             localSaveData.Add("savedHealth", es3SaveFile.Load<int>("savedHealth", -1));
             lastPosition = es3SaveFile.Load<Vector2>("lastPosition", new Vector2());
-            ManaManager.instance.currentRotation = es3SaveFile.Load<float>("heatStatus");
+            ManaManager.instance.currentRotation = es3SaveFile.Load<float>("heatStatus", 405f);
+            PlayerScript.instance.canChangeChips = es3SaveFile.Load<bool>("canChangeChips", false);
+            PlayerScript.instance.isInvunerableTimer = es3SaveFile.Load<float>("isInvunerableTimer", 0f);
         }
     }
 }

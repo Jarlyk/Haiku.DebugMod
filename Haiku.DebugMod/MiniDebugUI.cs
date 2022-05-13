@@ -148,11 +148,12 @@ namespace Haiku.DebugMod {
 
             if (SaveStates.SaveStatesManager.showFiles)
             {
-                GUI.Label(new Rect(5, 600, 200, 20), SaveStates.SaveStatesManager.currentPage.ToString());
-                for (int i = 0; i < fileNames.Length; i++) 
+                GUI.Label(new Rect(5, 600, 200, 20), "Current Page: " + SaveStates.SaveStatesManager.currentPage.ToString());
+                for (int i = 1; i < fileNames.Length; i++) 
                 {
-                    GUI.Label(new Rect(5, 620 + i * 20, 200, 20), fileNames[i]);
+                    GUI.Label(new Rect(5, 620 + i * 20, 200, 20), $"{i}: " + fileNames[i]);
                 }
+                GUI.Label(new Rect(5, 620 + fileNames.Length * 20, 200, 20), $"{0}: " + fileNames[0]);
             }
             #endregion
         }
