@@ -31,11 +31,14 @@ namespace Haiku.DebugMod.SaveStates {
                 SaveData.Save(Settings.debugPath + "/SaveState/saveData.haiku");
             } else
             {
+                // Save everything to the current Page and slot selected, and then the Name currently selected in Settings.nameNextSave, otherwise SceneIndex and Name.
                 SaveData.Save(Settings.debugPath + $"/SaveState/{currentPage}/saveData{slot}.haiku",slot);
                 SaveData.saveFileNames(Settings.debugPath + $"/SaveState/{currentPage}/fileNameList.haiku",slot);
             }
+            // Simple Saving UI
             saveSlot = slot;
             GameManager.instance.StartCoroutine(savingUI());
+            // Update File Names
             MiniDebugUI.findFileNames();
         }
 
@@ -49,14 +52,15 @@ namespace Haiku.DebugMod.SaveStates {
                 loadSlot = slot;
                 SaveData.Load(Settings.debugPath + $"/SaveState/{currentPage}/saveData{slot}.haiku");
             }
-            if (!SaveData.localSaveData.TryGetValue("sceneToLoad", out int scene)) return;
-            GameManager.instance.StartCoroutine(LoadScene(scene));
+            if (SaveData.sceneToLoad == -1) return;
+            GameManager.instance.StartCoroutine(LoadScene(SaveData.sceneToLoad, true));
             loadSlot = slot;
             GameManager.instance.StartCoroutine(loadingUI());
         }
 
         private static IEnumerator savingUI()
         {
+            // This is not the cleanest solution, implementing a robust Timer is needed..
             isLoading = false;
             isSaving = true;
             yield return new WaitForSeconds(1f);
@@ -71,7 +75,7 @@ namespace Haiku.DebugMod.SaveStates {
             isLoading = false;
         }
 
-        private static IEnumerator LoadScene(int sceneIndex) {
+        public static IEnumerator LoadScene(int sceneIndex, bool SaveState) {
             // Code from Haiku
             PlayerScript.instance.DisableMovementFor(0.35f);
             CameraBehavior.instance.TransitionState(true);
@@ -82,11 +86,39 @@ namespace Haiku.DebugMod.SaveStates {
                 Mathf.Clamp01(operation.progress / 0.9f);
                 yield return null;
             }
+            CameraBehavior.instance.ResetCameraPositionToPlayer();
+            yield return 5;
+            yield return new WaitForSeconds(0.2f);
             CameraBehavior.instance.TransitionState(false);
+
+            // Adjustment for SaveStates
+            if (!SaveState) yield break;
             if (SaveData.lastPosition != new Vector2())
                 PlayerScript.instance.transform.position = SaveData.lastPosition;
-            yield return new WaitForSeconds(0.2f);
             yield break;
+        }
+
+        public static IEnumerator LoadScene(string sceneName)
+        {
+            // Code from Haiku
+            PlayerScript.instance.DisableMovementFor(0.35f);
+            CameraBehavior.instance.TransitionState(true);
+            GameManager.instance.UpdateUpgradeAbilityBooleans();
+            PlayerScript.instance.transform.position = new Vector3(1000f, 100f);
+            AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName);
+            while (!operation.isDone)
+            {
+                Mathf.Clamp01(operation.progress / 0.9f);
+                yield return null;
+            }
+            CameraBehavior.instance.ResetCameraPositionToPlayer();
+            yield return 5;
+            yield return new WaitForSeconds(0.2f);
+            CameraBehavior.instance.TransitionState(false);
+
+            // Changes for scene loading
+            PlayerScript.instance.rb.velocity = Vector2.zero;
+            PlayerScript.instance.transform.position = Hooks.validStartPosition;
         }
     }
 }

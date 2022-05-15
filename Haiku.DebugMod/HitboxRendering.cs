@@ -68,7 +68,7 @@ namespace Haiku.DebugMod {
                 tileColliderMaterial.SetInt("_ZWrite", 0);
                 tileColliderMaterial.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);               
                 
-                Debug.LogWarning($"Created tileColliderMaterial with shader: {tileColliderMaterial.shader.name}");
+                // Debug.LogWarning($"Created tileColliderMaterial with shader: {tileColliderMaterial.shader.name}");
             }
 
             bool newMesh = false;
@@ -80,7 +80,7 @@ namespace Haiku.DebugMod {
                 lastCc = cc;
                 if (tmcMesh) {
                     newMesh = true;
-                    Debug.LogWarning($"Created mesh for CompositeCollider2D with {tmcMesh.vertexCount} vertices");
+                    // Debug.LogWarning($"Created mesh for CompositeCollider2D with {tmcMesh.vertexCount} vertices");
 
                     //Flip y vertices for use later in rendering in pixel coordinates
                     var vertices = new Vector3[tmcMesh.vertexCount];
@@ -101,9 +101,9 @@ namespace Haiku.DebugMod {
                 var height = Camera.current.pixelHeight;
                 var w0 = Camera.current.ScreenToWorldPoint(new Vector3(0, 0, 0));
                 if (newMesh) {
-                    Debug.LogWarning($"Using mesh scaling of {scaleX},{scaleY} based on camera sp {p0.x},{p0.y} - {p1.x},{p1.y}");
-                    Debug.LogWarning($"Camera position {cameraPos}");
-                    Debug.LogWarning($"World position for screen origin: {w0}");
+                    // Debug.LogWarning($"Using mesh scaling of {scaleX},{scaleY} based on camera sp {p0.x},{p0.y} - {p1.x},{p1.y}");
+                    // Debug.LogWarning($"Camera position {cameraPos}");
+                    // Debug.LogWarning($"World position for screen origin: {w0}");
                 }
 
                 var toOrigin = Matrix4x4.Translate(new Vector3(-w0.x, w0.y, -w0.z));
@@ -119,6 +119,7 @@ namespace Haiku.DebugMod {
             //Nothing to render for tmc, as it uses composite collider instead
             return;
 
+            #pragma warning disable CS0162 // Unreachable code detected
             if (!tileColliderMaterial) {
                 var existingSprite = Object.FindObjectOfType<SpriteRenderer>();
                 if (!existingSprite) return;
@@ -126,11 +127,12 @@ namespace Haiku.DebugMod {
                 tileColliderMaterial = new Material(existingSprite.material.shader);
                 tileColliderMaterial.color = new Color(0, 1, 0, 0.4f);
                 tileColliderMaterial.mainTexture = texSolid;
-                Debug.LogWarning($"Created tileColliderMaterial with shader: {existingSprite.material.shader.name}");
+                // Debug.LogWarning($"Created tileColliderMaterial with shader: {existingSprite.material.shader.name}");
                 if (tmc.composite) {
-                    Debug.LogWarning("Located composite collider attached to Tilemap");
+                    // Debug.LogWarning("Located composite collider attached to Tilemap");
                 }
             }
+            #pragma warning restore CS0162 // Unreachable code detected
 
             if (tmc != lastTmc) {
                 if (tmcMesh) {
@@ -182,7 +184,7 @@ namespace Haiku.DebugMod {
             }
         }
 
-        private static void DrawBox(Bounds bounds) {
+        public static void DrawBox(Bounds bounds) {
             var s0 = Camera.current.WorldToScreenPoint(bounds.min);
             var s2 = Camera.current.WorldToScreenPoint(bounds.max);
             Graphics.DrawTexture(new Rect(s0.x, Camera.current.pixelHeight - s2.y, s2.x - s0.x, s2.y - s0.y), texBox, new Rect(0, 0, 1, 1), 3, 3, 3, 3, GUI.color);

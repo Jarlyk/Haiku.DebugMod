@@ -6,14 +6,26 @@ using UnityEngine.SceneManagement;
 namespace Haiku.DebugMod.SaveStates {
     class SaveData {
         private static ES3File es3SaveFile;
-
-        internal static Dictionary<string, int> localSaveData;
         internal static Vector2 lastPosition;
+        internal static int sceneToLoad;
 
         private static string[] fileNameData = new string[10];
 
+        private static HashSet<int> enemiesIDInCurrentScene = new();
+
+        public static void AddID(int ID)
+        {
+            enemiesIDInCurrentScene.Add(ID);
+        }
+
+        public static void clearEnemyIDHashset()
+        {
+            enemiesIDInCurrentScene.Clear();
+        }
+
         public static void initSaveStates()
         {
+            // Create non meaningful Save File Names to Display
             for (int i = 0; i < 10; i++)
             {
                 string path = Settings.debugPath + $"/SaveState/{i}/fileNameList.haiku";
@@ -27,7 +39,53 @@ namespace Haiku.DebugMod.SaveStates {
             }
         }
 
+        public static void saveFileNames(string filePath, int slot)
+        {
+            // Save the name of a SaveState to the right slot
+            es3SaveFile = new ES3File(filePath);
+            if (Settings.nameNextSave.Value.Equals("Insert Name"))
+            {
+                es3SaveFile.Save<string>($"fileName{slot}", fileNameData[slot]);
+            }
+            else
+            {
+                es3SaveFile.Save<string>($"fileName{slot}", Settings.nameNextSave.Value);
+            }
+            es3SaveFile.Sync();
+        }
+
+        public static string[] loadFileName(string filePath)
+        {
+            // Load all SaveState names from File for ShowStates UI
+            if (!File.Exists(filePath))
+            {
+                Debug.LogWarning($"Couldn't find File at{filePath}");
+                return createEmptyFileNames();
+            }
+            es3SaveFile = new ES3File(filePath);
+            string[] result = new string[fileNameData.Length];
+            for (int i = 0; i < fileNameData.Length; i++)
+            {
+                result[i] = es3SaveFile.Load<string>($"fileName{i}");
+                fileNameData[i] = result[i];
+            }
+            es3SaveFile.Sync();
+            return result;
+        }
+
+        private static string[] createEmptyFileNames()
+        {
+            // Fail save if settings were deleted
+            string[] result = new string[fileNameData.Length];
+            for (int i = 0; i < fileNameData.Length; i++)
+            {
+                result[i] = "No Save Data";
+            }
+            return result;
+        }
+
         internal static void Save(string filePath, int slot = -1) {
+            // Save everything to an ES3 File
             es3SaveFile = new ES3File(filePath);
             var activeScene = SceneManager.GetActiveScene();
             string name = "No info";
@@ -39,7 +97,20 @@ namespace Haiku.DebugMod.SaveStates {
             {
                 fileNameData[slot] = name;
             }
-            //es3SaveFile.Save<string>("fileName", name);
+            es3SaveFile.Save<float>("timePlayed", GameManager.instance.timePlayed);
+            if (enemiesIDInCurrentScene.Count > 0)
+            {
+                foreach (int i in enemiesIDInCurrentScene)
+                {
+                    if (PlayerPrefs.HasKey("Enemy" + i + activeScene.buildIndex))
+                    {
+                        es3SaveFile.Save<float>($"Enemy{i}DeathTime", PlayerPrefs.GetFloat("Enemy" + i + activeScene.buildIndex));
+                    }
+                }
+                es3SaveFile.Save<HashSet<int>>("EnemyIDS", enemiesIDInCurrentScene);
+            }
+
+
             es3SaveFile.Save<int>("savePointSceneIndex", GameManager.instance.savePointSceneIndex);
             es3SaveFile.Save<int>("maxHealth", GameManager.instance.maxHealth);
             es3SaveFile.Save<int>("coolingPoints", GameManager.instance.coolingPoints);
@@ -170,6 +241,7 @@ namespace Haiku.DebugMod.SaveStates {
             es3SaveFile.Save<bool>("showBankStations", GameManager.instance.showBankStations);
             es3SaveFile.Save<bool>("showVendors", GameManager.instance.showVendors);
             es3SaveFile.Save<bool>("showTrainStations", GameManager.instance.showTrainStations);
+
             es3SaveFile.Save<int>("sceneToLoad", SceneManager.GetActiveScene().buildIndex);
             es3SaveFile.Save<int>("savedHealth", PlayerHealth.instance.currentHealth);
             es3SaveFile.Save<Vector2>("lastPosition", PlayerScript.instance.lastPositionOnPlatform);
@@ -179,50 +251,9 @@ namespace Haiku.DebugMod.SaveStates {
             es3SaveFile.Sync();
         }
 
-        public static void saveFileNames(string filePath, int slot)
-        {
-            es3SaveFile = new ES3File(filePath);
-            if (Settings.nameNextSave.Value.Equals("Insert Name"))
-            {
-                es3SaveFile.Save<string>($"fileName{slot}", fileNameData[slot]);
-            } else
-            {
-                es3SaveFile.Save<string>($"fileName{slot}", Settings.nameNextSave.Value);
-            }
-            es3SaveFile.Sync();
-        }
-
-        public static string[] loadFileName(string filePath)
-        {
-            if (!File.Exists(filePath))
-            {
-                Debug.LogWarning($"Couldn't find File at{filePath}");
-                return createEmptyFileNames();
-            }
-            es3SaveFile = new ES3File(filePath);
-            string[] result = new string[fileNameData.Length];
-            for (int i = 0; i < fileNameData.Length; i++)
-            {
-                result[i] = es3SaveFile.Load<string>($"fileName{i}");
-                fileNameData[i] = result[i];
-            }
-            es3SaveFile.Sync();
-            return result;
-        }
-
-        private static string[] createEmptyFileNames()
-        {
-            string[] result = new string[fileNameData.Length];
-            for (int i = 0; i < fileNameData.Length; i++)
-            {
-                result[i] = "No Save Data";
-            }
-            return result;
-        }
-
         internal static void Load(string filePath) {
+            // Load everything from an ES3 Savefile
             es3SaveFile = new ES3File(filePath);
-            localSaveData = new Dictionary<string, int>();
             GameManager.instance.savePointSceneIndex = es3SaveFile.Load<int>("savePointSceneIndex", 10);
             GameManager.instance.maxHealth = es3SaveFile.Load<int>("maxHealth", 4);
             GameManager.instance.coolingPoints = es3SaveFile.Load<int>("coolingPoints", 0);
@@ -353,16 +384,34 @@ namespace Haiku.DebugMod.SaveStates {
             GameManager.instance.showBankStations = es3SaveFile.Load<bool>("showBankStations", false);
             GameManager.instance.showVendors = es3SaveFile.Load<bool>("showVendors", false);
             GameManager.instance.showTrainStations = es3SaveFile.Load<bool>("showTrainStations", false);
-            localSaveData.Add("sceneToLoad", es3SaveFile.Load<int>("sceneToLoad", -1));
+            sceneToLoad = es3SaveFile.Load<int>("sceneToLoad", -1);
             int savedHealth = es3SaveFile.Load<int>("savedHealth", -1);
             if (savedHealth - PlayerHealth.instance.currentHealth != 0)
             {
-                PlayerHealth.instance.AddHealth(SaveData.localSaveData["savedHealth"] - PlayerHealth.instance.currentHealth);
+                PlayerHealth.instance.AddHealth(savedHealth - PlayerHealth.instance.currentHealth);
             }
             lastPosition = es3SaveFile.Load<Vector2>("lastPosition", new Vector2());
             ManaManager.instance.currentRotation = es3SaveFile.Load<float>("heatStatus", 405f);
             PlayerScript.instance.canChangeChips = es3SaveFile.Load<bool>("canChangeChips", false);
             PlayerScript.instance.isInvunerableTimer = es3SaveFile.Load<float>("isInvunerableTimer", 0f);
+
+            GameManager.instance.timePlayed = es3SaveFile.Load<float>("timePlayed", GameManager.instance.timePlayed);
+
+            HashSet<int> enemyIDsInSavedScene = es3SaveFile.Load<HashSet<int>>("EnemyIDS", new HashSet<int>());
+            if (enemyIDsInSavedScene.Count > 0)
+            {
+                foreach(int id in enemyIDsInSavedScene)
+                {
+                    float loadedDeathTime = es3SaveFile.Load<float>($"Enemy{id}DeathTime", -1f);
+                    if (loadedDeathTime == -1f)
+                    {
+                        Debug.LogError($"Couldn't Load Enemy{id}DeathTime, setting it to 0 instead");
+                        PlayerPrefs.SetFloat("Enemy" + id + sceneToLoad, 0f);
+                        continue;
+                    }
+                    PlayerPrefs.SetFloat("Enemy" + id + sceneToLoad, es3SaveFile.Load<float>($"Enemy{id}DeathTime"));
+                }
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Haiku.DebugMod {
 
         private void OnGUI()
         {
-            GUI.Label(new Rect(5, 5, 100, 30), "MiniDebug 0.1");
+            GUI.Label(new Rect(5, 5, 100, 30), $"Debug");
 
             #region Cheats
             if (MiniCheats.IgnoreHeat)
@@ -111,6 +111,8 @@ namespace Haiku.DebugMod {
                 {
                     GUI.Label(new Rect(5, y0 + 260, 200, 20), $"Scene# {activeScene.buildIndex} : {activeScene.name}");
                 }
+                GUI.Label(new Rect(5, y0 + 280,200,20), $"Player Position: {PlayerScript.instance.transform.position.x} : {PlayerScript.instance.transform.position.y}");
+
             }
 
             if (Event.current.type.Equals(EventType.Repaint))
@@ -145,7 +147,6 @@ namespace Haiku.DebugMod {
                     GUI.Label(new Rect(Screen.width - 350, Screen.height - 100, 100, 50), string.Format("Loaded Slot {0}", SaveStates.SaveStatesManager.loadSlot), saveStateStyle);
                 }
             }
-
             if (SaveStates.SaveStatesManager.showFiles)
             {
                 GUI.Label(new Rect(5, 600, 200, 20), "Current Page: " + SaveStates.SaveStatesManager.currentPage.ToString());

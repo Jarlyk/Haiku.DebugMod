@@ -16,6 +16,7 @@ namespace Haiku.DebugMod
         {
             // Use BaseUnityPlugin.Config so that ConfigManager works
             Settings.initSettings(Config);
+
             On.GameManager.Start += GameManagerStart;
             On.GameManager.Update += GameManagerUpdate;
         }
@@ -26,12 +27,12 @@ namespace Haiku.DebugMod
             Hooks.Init();
             HitboxRendering.Init();
 
-            LogArray("powerCells");
-            LogArray("mapTiles");
-            LogArray("disruptors");
-            LogArray("chip");
-            LogArray("chipSlot");
-            LogArray("trainStations");
+            //LogArray("powerCells");
+            //LogArray("mapTiles");
+            //LogArray("disruptors");
+            //LogArray("chip");
+            //LogArray("chipSlot");
+            //LogArray("trainStations");
 
             instance.gameObject.AddComponent<MiniDebugUI>();
         }
@@ -69,3 +70,4 @@ namespace Haiku.DebugMod
         }
     }
 }
+
