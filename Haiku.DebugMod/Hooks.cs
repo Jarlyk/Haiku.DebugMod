@@ -8,16 +8,14 @@ using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using System.Collections;
-using UnityEngine.SceneManagement;
 
 namespace Haiku.DebugMod {
     public static class Hooks {
         private const BindingFlags AllBindings = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-        private static GameObject[] MapRooms;
         public static Vector2 validStartPosition = new Vector2(10f,10f);
         private static bool isQuickMapOpened = false;
-        private static GameObject MapWarpSelectOverlay = null;
+        public static float timer = 0f;
+        private static float frequencyOfUpdates = 0.2f;
 
         public static void Init()
         {
@@ -26,7 +24,7 @@ namespace Haiku.DebugMod {
             IL.PlayerHealth.StunAndTakeDamage += UpdateTakeDamage;
             IL.ManaManager.AddHeat += UpdateAddHeat;
             #endregion
-            #region Quick Map Warp
+            #region Map Warp
             On.PlayerLocation.OnEnable += QuickMapEnabled;
             On.CameraBehavior.Update += cameraUpdate;
             On.CanvasAspectScaler.Update += MainCanvasUpdate;
@@ -39,23 +37,6 @@ namespace Haiku.DebugMod {
             #endregion
             SaveStates.SaveData.initSaveStates();
         }
-
-        private static bool MapTileCheck(On.MapTile.orig_CheckMyTile orig, MapTile self)
-        {
-            bool result = false;
-            if (self.TryGetComponent<Image>(out Image img))
-            {
-                img.raycastTarget = true;
-                if (GameManager.instance.mapTiles[self.tileID].explored)
-                {
-                    img.color = new Color(1f, 1f, 1f, 0f);
-                    result = true;
-                }
-            }
-            return result;
-        }
-
-
 
         #region Hooks
         #region Cheats
@@ -89,17 +70,17 @@ namespace Haiku.DebugMod {
         #region Quick Map Warp
         private static void QuickMapEnabled(On.PlayerLocation.orig_OnEnable orig, PlayerLocation self)
         {
-            // Enable Mouse after Quick Map is opened and save all Room GameObject
+            // Enable Mouse after Quick Map is opened and save all Rooms as GameObjects
             orig(self);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            if (MapRooms != null) return;
-            MapRooms = self.rooms;
+            if (MapWarp.MapRooms.Length != 0) return;
+            MapWarp.MapRooms = self.rooms;
         }
 
         private static void cameraUpdate(On.CameraBehavior.orig_Update orig, CameraBehavior self)
         {
-            // Keep Cursor visible even if you click out of the window
+            // Keep Cursor visible even if you click out of the window and back into it while Map is Opened (OnApplicationFocus would override it)
             orig(self);
             if (self.mapUI.activeSelf)
             {
@@ -120,81 +101,20 @@ namespace Haiku.DebugMod {
 
         private static void MainCanvasUpdate(On.CanvasAspectScaler.orig_Update orig, CanvasAspectScaler self)
         {
-            // Get the closest room whenever you click on the Map
-            if (!isQuickMapOpened || !MiniCheats.QuickMapWarp) return;
+            // Get the closest room whenever you click on the Map. Since MainCanvasUpdate is called by different GameObjects, make sure it's the Map one
+            if (!isQuickMapOpened || !MiniCheats.QuickMapWarp || !self.gameObject.name.Equals("MapCanvas")) return;
+            if (timer >= frequencyOfUpdates)
+            {
+                // Every so often it'll Update the position of where to place the "select" object, which is a blank white rectangle with less alpha,
+                // having the size of the Mask that hides a Room
+                MapWarp.MoveSelectObject(self.gameObject);
+            }
 
             if (Input.GetMouseButtonDown(0))
             {
-                PointerEventData ped = new PointerEventData(null);
-                ped.position = Input.mousePosition;
-                List<RaycastResult> results = new();
-                self.gameObject.GetComponent<GraphicRaycaster>().Raycast(ped, results);
-                GameObject MaskMapTile = null;
-                foreach (RaycastResult result in results)
-                {
-                    Debug.Log(result.gameObject.name);
-                    if (result.gameObject.name.StartsWith("Mask Map Tile"))
-                    {
-                        MaskMapTile = result.gameObject;
-                    }
-                }
-                if (MaskMapTile != null)
-                {
-                    Image imgOfSelectedMapTile;
-                    if (MapWarpSelectOverlay == null)
-                    {
-                        MapWarpSelectOverlay = new GameObject();
-                        MapWarpSelectOverlay.transform.SetParent(MaskMapTile.transform.parent.transform);
-                        MapWarpSelectOverlay.transform.localScale = new Vector2(1f, 1f);
-
-                        imgOfSelectedMapTile = MapWarpSelectOverlay.AddComponent<Image>();
-                        imgOfSelectedMapTile.color = new Color(imgOfSelectedMapTile.color.r, imgOfSelectedMapTile.color.g, imgOfSelectedMapTile.color.b, 0.4f);
-                        Debug.Log("GameObect created" + MapWarpSelectOverlay + " parent: " + MapWarpSelectOverlay.transform.parent);
-                    } else
-                    {
-                        imgOfSelectedMapTile = MapWarpSelectOverlay.GetComponent<Image>();
-                    }
-                    MapWarpSelectOverlay.transform.position = MaskMapTile.transform.position;
-                    RectTransform MaskMapTileRect = MaskMapTile.GetComponent<RectTransform>();
-                    imgOfSelectedMapTile.rectTransform.sizeDelta = new Vector2(MaskMapTileRect.rect.width, MaskMapTileRect.rect.height);
-                }
-                try
-                {
-                    GameObject temp = findClosestRoom(Input.mousePosition);
-                    if (temp != null)
-                    {
-                        GameManager.instance.StartCoroutine(SaveStates.SaveStatesManager.LoadScene(temp.name));
-                    }
-                    else
-                    {
-                        Debug.LogError("Couldn't match Scene By Name: " + temp.name);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.Log(e);
-                }
+                MapWarp.LoadRoom();
             }
             orig(self);
-        }
-
-        private static GameObject findClosestRoom(Vector2 mousePos)
-        {
-            // Goes through all rooms and finds the nearest to the Mouse Position within 300f range
-            if (MapRooms == null) return null;
-            GameObject closestRoom = null;
-            float smallestDistance = 300f;
-            foreach (GameObject room in MapRooms)
-            {
-                float distance = Vector2.Distance(mousePos, room.transform.position);
-                if (distance < smallestDistance)
-                {
-                    closestRoom = room;
-                    smallestDistance = distance;
-                }
-            }
-            Debug.Log("s distance: " + smallestDistance);
-            return closestRoom;
         }
 
         private static void TransitionToNextRoom(On.LoadNewLevel.orig_Awake orig, LoadNewLevel self)
@@ -202,6 +122,21 @@ namespace Haiku.DebugMod {
             // Get a "random" transition position we can Warp to
             validStartPosition = self.startPoint.position;
             orig(self);
+        }
+
+        private static bool MapTileCheck(On.MapTile.orig_CheckMyTile orig, MapTile self)
+        {
+            bool result = false;
+            if (self.TryGetComponent<Image>(out Image img))
+            {
+                img.raycastTarget = true;
+                if (GameManager.instance.mapTiles[self.tileID].explored)
+                {
+                    img.color = new Color(1f, 1f, 1f, 0f);
+                    result = true;
+                }
+            }
+            return result;
         }
         #endregion
 

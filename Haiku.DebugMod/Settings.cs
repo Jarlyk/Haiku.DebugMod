@@ -38,6 +38,12 @@ namespace Haiku.DebugMod
         #endregion
         #endregion
 
+        private static void createButton(ConfigFile config, Action method, string section, string btnName, string description)
+        {
+            config.Bind(section, btnName, "", new ConfigDescription(description, null,
+               new ConfigurationManagerAttributes { CustomDrawer = x => buttonDrawer(x, method, btnName, description), ReadOnly = true, HideDefaultButton = true }));
+        }
+
         public static void initSettings(ConfigFile config)
         {
             #region Cheats
@@ -47,9 +53,9 @@ namespace Haiku.DebugMod
             ShowStats = config.Bind("Cheats", "ShowStats", new KeyboardShortcut(KeyCode.F5), setPosition(1));
 
             // No idea why this doesn't work but the next line does.. Error is: Argument not within expected range
-            //createButton(config,GameManager.instance.toggleMapTesting,"Cheats", "GiveMaps", "Give all Maps");
-            config.Bind("Cheats", "GiveMaps", "",new ConfigDescription("Give all Maps", null,
-               new ConfigurationManagerAttributes { CustomDrawer = x => buttonDrawer(x, MiniCheats.giveAllMaps, "GiveMaps", "Give all Maps"), ReadOnly = true, HideDefaultButton = true }));
+            createButton(config,MiniCheats.giveAllMaps, "Cheats", "GiveMaps", "Give all Maps");
+            //config.Bind("Cheats", "GiveMaps", "",new ConfigDescription("Give all Maps", null,
+            //   new ConfigurationManagerAttributes { CustomDrawer = x => buttonDrawer(x, MiniCheats.giveAllMaps, "GiveMaps", "Give all Maps"), ReadOnly = true, HideDefaultButton = true }));
             #endregion
 
             #region SaveStates
@@ -92,11 +98,7 @@ namespace Haiku.DebugMod
             }
         }
 
-        private static void createButton(ConfigFile config, Action method, string section, string btnName, string description)
-        {
-            config.Bind(section, btnName, "", new ConfigDescription(description, null,
-               new ConfigurationManagerAttributes { CustomDrawer = x => buttonDrawer(x, method, btnName, description), ReadOnly = true, HideDefaultButton = true }));
-        }
+        
 
         private static void buttonDrawer(ConfigEntryBase entry,Action method, string name, string description)
         {

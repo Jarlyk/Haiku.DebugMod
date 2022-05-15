@@ -9,6 +9,12 @@ namespace Haiku.DebugMod {
         public static bool ShowStats;
         private static string[] fileNames = new string[10];
 
+        private void Update()
+        {
+            // Time.deltaTime doesn't work..??
+            Hooks.timer += 0.02f;
+        }
+
         public static void findFileNames()
         {
             fileNames = SaveStates.SaveData.loadFileName(Settings.debugPath + $"/SaveState/{SaveStates.SaveStatesManager.currentPage}/fileNameList.haiku");
