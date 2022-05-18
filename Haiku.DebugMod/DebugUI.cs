@@ -7,7 +7,7 @@ using Modding;
 using UnityEngine.UI;
 
 namespace Haiku.DebugMod {
-    public sealed class MiniDebugUI : MonoBehaviour {
+    public sealed class DebugUI : MonoBehaviour {
         public static bool ShowStats;
         private static string[] fileNames = new string[10];
         GameObject DebugCanvas;

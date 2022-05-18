@@ -34,7 +34,7 @@ namespace Haiku.DebugMod
             //LogArray("chipSlot");
             //LogArray("trainStations");
 
-            instance.gameObject.AddComponent<MiniDebugUI>();
+            instance.gameObject.AddComponent<DebugUI>();
         }
 
         private void GameManagerUpdate(On.GameManager.orig_Update orig, GameManager instance)

@@ -39,7 +39,7 @@ namespace Haiku.DebugMod.SaveStates {
             saveSlot = slot;
             GameManager.instance.StartCoroutine(savingUI());
             // Update File Names
-            MiniDebugUI.findFileNames();
+            DebugUI.findFileNames();
         }
 
         public static void LoadState(int slot = -1) {

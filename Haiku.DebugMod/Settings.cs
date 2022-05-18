@@ -2,12 +2,7 @@
 using BepInEx;
 using BepInEx.Configuration;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System;
-using System.Windows;
 using Modding;
-using System.Linq.Expressions;
-using System.Linq;
 
 namespace Haiku.DebugMod
 {
@@ -49,7 +44,6 @@ namespace Haiku.DebugMod
             IgnoreHeat = config.Bind("Cheats", "IgnoreHeat", new KeyboardShortcut(KeyCode.F3), ConfigManagerUtil.setPosition(3));
             ShowHitboxes = config.Bind("Cheats", "ShowHitboxes", new KeyboardShortcut(KeyCode.F4), ConfigManagerUtil.setPosition(2));
             ShowStats = config.Bind("Cheats", "ShowStats", new KeyboardShortcut(KeyCode.F5), ConfigManagerUtil.setPosition(1));
-
             ConfigManagerUtil.createButton(config, MiniCheats.giveAllMaps, "Cheats", "GiveMaps", "Give all Maps");
             #endregion
 

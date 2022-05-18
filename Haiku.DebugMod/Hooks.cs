@@ -170,7 +170,7 @@ namespace Haiku.DebugMod {
 
             if (Settings.ShowStats.Value.IsDown())
             {
-                MiniDebugUI.ShowStats = !MiniDebugUI.ShowStats;
+                DebugUI.ShowStats = !DebugUI.ShowStats;
             }
             #endregion
 
@@ -203,7 +203,7 @@ namespace Haiku.DebugMod {
             {
                 if (!SaveStates.SaveStatesManager.showFiles)
                 {
-                    MiniDebugUI.findFileNames();
+                    DebugUI.findFileNames();
                     SaveStates.SaveStatesManager.showFiles = !SaveStates.SaveStatesManager.showFiles;
                 }
                 else
@@ -215,12 +215,12 @@ namespace Haiku.DebugMod {
             if (Settings.PageNext.Value.IsDown())
             {
                 SaveStates.SaveStatesManager.nextPage();
-                if (SaveStates.SaveStatesManager.showFiles) MiniDebugUI.findFileNames();
+                if (SaveStates.SaveStatesManager.showFiles) DebugUI.findFileNames();
             }
             if (Settings.PagePrevious.Value.IsDown())
             {
                 SaveStates.SaveStatesManager.previousPage();
-                if (SaveStates.SaveStatesManager.showFiles) MiniDebugUI.findFileNames();
+                if (SaveStates.SaveStatesManager.showFiles) DebugUI.findFileNames();
             }
             #endregion
 
