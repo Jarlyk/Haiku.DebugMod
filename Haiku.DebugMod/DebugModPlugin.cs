@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Haiku.DebugMod
 {
-    [BepInPlugin("haiku.debugmod", "Haiku Debug Mod", "1.0.1.0")]
+    [BepInPlugin("haiku.debugmod", "Haiku Debug Mod", "1.0.1.1")]
     [BepInDependency("haiku.mapi", "1.0")]
     public sealed class DebugModPlugin : BaseUnityPlugin
     {

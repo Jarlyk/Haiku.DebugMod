@@ -1,58 +1,84 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<LangVersion>9</LangVersion>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<GamePath>G:\SteamLibrary\steamapps\common\Haiku the Robot</GamePath>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Images\circle.png" />
-    <None Remove="Images\square.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Images\circle.png" />
+		<None Remove="Images\square.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Images\circle.png" />
-    <EmbeddedResource Include="Images\square.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Images\circle.png" />
+		<EmbeddedResource Include="Images\square.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\lib\Game\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="BepInEx">
-      <HintPath>..\lib\BepInEx\BepInEx.dll</HintPath>
-    </Reference>
-    <Reference Include="Haiku.CoreModdingApi">
-      <HintPath>..\lib\Haiku.CoreModdingApi.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\lib\BepInEx\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\lib\BepInEx\MonoMod.RuntimeDetour.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoMod.Utils">
-      <HintPath>..\lib\BepInEx\MonoMod.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\lib\Game\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\lib\Game\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>..\lib\Game\UnityEngine.ImageConversionModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>..\lib\Game\UnityEngine.IMGUIModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>..\lib\Game\UnityEngine.InputLegacyModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Physics2DModule">
-      <HintPath>..\lib\Game\UnityEngine.Physics2DModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.TilemapModule">
-      <HintPath>..\lib\Game\UnityEngine.TilemapModule.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+	<ItemGroup>
+		<Reference Include="Assembly-CSharp.dll">
+			<HintPath>..\lib\Game\Assembly-CSharp.dll</HintPath>
+		</Reference>
+		<Reference Include="Assembly-CSharp-firstpass.dll">
+			<HintPath>..\lib\Game\Assembly-CSharp-firstpass.dll</HintPath>
+		</Reference>
+		<Reference Include="BepInEx">
+			<HintPath>..\lib\BepInEx\BepInEx.dll</HintPath>
+		</Reference>
+		<Reference Include="Haiku.CoreModdingApi">
+			<HintPath>..\lib\Haiku.CoreModdingApi.dll</HintPath>
+		</Reference>
+		<Reference Include="Mono.Cecil">
+			<HintPath>..\lib\BepInEx\Mono.Cecil.dll</HintPath>
+		</Reference>
+		<Reference Include="MonoMod.RuntimeDetour">
+			<HintPath>..\lib\BepInEx\MonoMod.RuntimeDetour.dll</HintPath>
+		</Reference>
+		<Reference Include="MonoMod.Utils">
+			<HintPath>..\lib\BepInEx\MonoMod.Utils.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>..\lib\Game\UnityEngine.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.UI">
+			<HintPath>..\lib\Game\UnityEngine.UI.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>..\lib\Game\UnityEngine.CoreModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.InputModule.dll">
+			<HintPath>..\lib\Game\UnityEngine.InputModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.ImageConversionModule">
+			<HintPath>..\lib\Game\UnityEngine.ImageConversionModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.IMGUIModule">
+			<HintPath>..\lib\Game\UnityEngine.IMGUIModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.InputLegacyModule">
+			<HintPath>..\lib\Game\UnityEngine.InputLegacyModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.Physics2DModule">
+			<HintPath>..\lib\Game\UnityEngine.Physics2DModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.TilemapModule">
+			<HintPath>..\lib\Game\UnityEngine.TilemapModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.TextRenderingModule">
+			<HintPath>..\lib\Game\UnityEngine.TextRenderingModule.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Files Include="$(SolutionDir)lib\$(Configuration)\*" />
+		<None Remove="Images\circle.png" />
+		<None Remove="Images\square.png" />
+		<BuildDir Include="$(TargetDir)" />
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Copy SourceFiles="$(TargetDir)Haiku.DebugMod.dll" DestinationFiles="$(GamePath)\BepInEx\plugins\Haiku.DebugMod.dll" />
+	</Target>
 </Project>

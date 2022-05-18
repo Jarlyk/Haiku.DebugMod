@@ -4,6 +4,10 @@ using BepInEx.Configuration;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System;
+using System.Windows;
+using Modding;
+using System.Linq.Expressions;
+using System.Linq;
 
 namespace Haiku.DebugMod
 {
@@ -25,7 +29,7 @@ namespace Haiku.DebugMod
         public static ConfigEntry<KeyboardShortcut> MemoryLoadState;
 
 
-        public static Dictionary<int,ConfigEntry<KeyboardShortcut>> SaveStateSlots;
+        public static Dictionary<int, ConfigEntry<KeyboardShortcut>> SaveStateSlots;
 
         public static Dictionary<int, ConfigEntry<KeyboardShortcut>> LoadStateSlots;
 
@@ -38,35 +42,26 @@ namespace Haiku.DebugMod
         #endregion
         #endregion
 
-        private static void createButton(ConfigFile config, Action method, string section, string btnName, string description)
-        {
-            config.Bind(section, btnName, "", new ConfigDescription(description, null,
-               new ConfigurationManagerAttributes { CustomDrawer = x => buttonDrawer(x, method, btnName, description), ReadOnly = true, HideDefaultButton = true }));
-        }
-
         public static void initSettings(ConfigFile config)
         {
             #region Cheats
-            Invuln = config.Bind("Cheats", "ToggleInvuln", new KeyboardShortcut(KeyCode.F2), setPosition(4));
-            IgnoreHeat = config.Bind("Cheats", "IgnoreHeat", new KeyboardShortcut(KeyCode.F3), setPosition(3));
-            ShowHitboxes = config.Bind("Cheats", "ShowHitboxes", new KeyboardShortcut(KeyCode.F4), setPosition(2));
-            ShowStats = config.Bind("Cheats", "ShowStats", new KeyboardShortcut(KeyCode.F5), setPosition(1));
+            Invuln = config.Bind("Cheats", "ToggleInvuln", new KeyboardShortcut(KeyCode.F2), ConfigManagerUtil.setPosition(4));
+            IgnoreHeat = config.Bind("Cheats", "IgnoreHeat", new KeyboardShortcut(KeyCode.F3), ConfigManagerUtil.setPosition(3));
+            ShowHitboxes = config.Bind("Cheats", "ShowHitboxes", new KeyboardShortcut(KeyCode.F4), ConfigManagerUtil.setPosition(2));
+            ShowStats = config.Bind("Cheats", "ShowStats", new KeyboardShortcut(KeyCode.F5), ConfigManagerUtil.setPosition(1));
 
-            // No idea why this doesn't work but the next line does.. Error is: Argument not within expected range
-            createButton(config,MiniCheats.giveAllMaps, "Cheats", "GiveMaps", "Give all Maps");
-            //config.Bind("Cheats", "GiveMaps", "",new ConfigDescription("Give all Maps", null,
-            //   new ConfigurationManagerAttributes { CustomDrawer = x => buttonDrawer(x, MiniCheats.giveAllMaps, "GiveMaps", "Give all Maps"), ReadOnly = true, HideDefaultButton = true }));
+            ConfigManagerUtil.createButton(config, MiniCheats.giveAllMaps, "Cheats", "GiveMaps", "Give all Maps");
             #endregion
 
             #region SaveStates
-            MemorySaveState = config.Bind("SaveStates", "SaveState", new KeyboardShortcut(KeyCode.F6), setPosition(6));
-            MemoryLoadState = config.Bind("SaveStates", "LoadState", new KeyboardShortcut(KeyCode.F7), setPosition(5));
+            MemorySaveState = config.Bind("SaveStates", "SaveState", new KeyboardShortcut(KeyCode.F6), ConfigManagerUtil.setPosition(6));
+            MemoryLoadState = config.Bind("SaveStates", "LoadState", new KeyboardShortcut(KeyCode.F7), ConfigManagerUtil.setPosition(5));
 
             SaveStateSlots = new Dictionary<int, ConfigEntry<KeyboardShortcut>>();
             for (int i = 0; i < 10; i++)
             {
-                KeyCode defaultModifier = System.Enum.TryParse<KeyCode>(string.Format("Alpha{0}", i),out KeyCode parsedResult) ? parsedResult : KeyCode.None;
-                SaveStateSlots.Add(i, config.Bind("SaveStates.SaveStateSlots", string.Format("SaveState{0}",i), new KeyboardShortcut(KeyCode.F8, defaultModifier)));
+                KeyCode defaultModifier = System.Enum.TryParse<KeyCode>(string.Format("Alpha{0}", i), out KeyCode parsedResult) ? parsedResult : KeyCode.None;
+                SaveStateSlots.Add(i, config.Bind("SaveStates.SaveStateSlots", string.Format("SaveState{0}", i), new KeyboardShortcut(KeyCode.F8, defaultModifier)));
             }
 
             LoadStateSlots = new Dictionary<int, ConfigEntry<KeyboardShortcut>>();
@@ -75,43 +70,14 @@ namespace Haiku.DebugMod
                 KeyCode defaultModifier = System.Enum.TryParse<KeyCode>(string.Format("Alpha{0}", i), out KeyCode parsedResult) ? parsedResult : KeyCode.None;
                 LoadStateSlots.Add(i, config.Bind("SaveStates.LoadStateSlots", string.Format("LoadState{0}", i), new KeyboardShortcut(KeyCode.F9, defaultModifier)));
             }
-            PageNext = config.Bind("SaveStates", "NextPage", new KeyboardShortcut(KeyCode.F11), setPosition(2));
-            PagePrevious = config.Bind("SaveStates", "PreviousPage", new KeyboardShortcut(KeyCode.F10), setPosition(3));
-            showStates = config.Bind("SaveStates", "ShowStates", new KeyboardShortcut(KeyCode.F11), setPosition(4));
-            nameNextSave = config.Bind(new ConfigDefinition("SaveStates","Name Next Save"), "Insert Name", setPosition(1));
+            PageNext = config.Bind("SaveStates", "NextPage", new KeyboardShortcut(KeyCode.F11), ConfigManagerUtil.setPosition(2));
+            PagePrevious = config.Bind("SaveStates", "PreviousPage", new KeyboardShortcut(KeyCode.F10), ConfigManagerUtil.setPosition(3));
+            showStates = config.Bind("SaveStates", "ShowStates", new KeyboardShortcut(KeyCode.F11), ConfigManagerUtil.setPosition(4));
+            nameNextSave = config.Bind(new ConfigDefinition("SaveStates", "Name Next Save"), "Insert Name", ConfigManagerUtil.setPosition(1));
             #endregion
-
-            config.Bind("Website", "Url", "https://github.com/Jarlyk/Haiku.DebugMod", new ConfigDescription("Open Website", null,
-                new ConfigurationManagerAttributes { CustomDrawer = OpenWebsiteDrawer, ReadOnly = true, HideDefaultButton = true, HideSettingName = true }));
-            config.Bind("Cheats", "QuickMapWarp", "", new ConfigDescription("Allow Warp in Quick Map", null,
-               new ConfigurationManagerAttributes { CustomDrawer = x => buttonDrawer(x, MiniCheats.toggleQuickMap, "QuickMapWarp", "Allow Warp in Quick Map"), ReadOnly = true, HideDefaultButton = true }));
+            ConfigManagerUtil.createWebsiteButton(config, "https://github.com/Jarlyk/Haiku.DebugMod");
+            ConfigManagerUtil.createButton(config, MiniCheats.toggleQuickMap, "Cheats", "QuickMapWarp", "");
             config.Save();
-        }
-
-
-        private static void OpenWebsiteDrawer(ConfigEntryBase entry)
-        {
-            //Create an Empty Label to Position the Button
-            GUILayout.Label(new GUIContent(""), GUILayout.Width(275));
-            if (GUILayout.Button(new GUIContent("URL", "https://github.com/Jarlyk/Haiku.DebugMod"), GUI.skin.button, GUILayout.ExpandWidth(false))) {
-                Process.Start("https://github.com/Jarlyk/Haiku.DebugMod");
-            }
-        }
-
-        
-
-        private static void buttonDrawer(ConfigEntryBase entry,Action method, string name, string description)
-        {
-            if (GUILayout.Button(new GUIContent(name, description), GUI.skin.button, GUILayout.ExpandWidth(false)))
-            {
-                method();
-            }
-        }
-
-        private static ConfigDescription setPosition(int pos)
-        {
-            // Set the position relative to its category using ConfigurationManagerAttributes. Higher number is higher on the list
-            return new ConfigDescription("", null, new ConfigurationManagerAttributes { Order = pos });
         }
     }
 }

@@ -3,16 +3,62 @@ using System.IO;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Modding;
+using UnityEngine.UI;
 
 namespace Haiku.DebugMod {
     public sealed class MiniDebugUI : MonoBehaviour {
         public static bool ShowStats;
         private static string[] fileNames = new string[10];
+        GameObject DebugCanvas;
+        GameObject NoHeatText;
+        GameObject InvulnText;
+        GameObject ShowStatsGameObject;
+        GameObject ShowStatesGameObject;
+        GameObject DisplayLoadingSavingGameObject;
+        Text ShowStatsText;
+        Text ShowStatesText;
+        Text DisplayLoadingSavingText;
 
-        private void Update()
+        private void Start()
         {
-            // Time.deltaTime doesn't work..??
-            Hooks.timer += 0.02f;
+            DebugCanvas = CanvasUtil.CreateCanvas(1);
+            DebugCanvas.transform.SetParent(gameObject.transform);
+
+            GameObject DebugPanel = CanvasUtil.CreateBasePanel(DebugCanvas, 
+                new CanvasUtil.RectData(new Vector2(0, 0), new Vector2(10, -4), new Vector2(0, 0), new Vector2(1, 2)));
+
+            #region Cheats
+            NoHeatText = CanvasUtil.CreateTextPanel(DebugPanel, "NoHeat", 5, TextAnchor.MiddleLeft, 
+                new CanvasUtil.RectData(new Vector2(400, 10), new Vector2(0, 0)), CanvasUtil.gameFont);
+            NoHeatText.name = "NoHeatText";
+            NoHeatText.SetActive(false);
+            
+            InvulnText = CanvasUtil.CreateTextPanel(DebugPanel, "Invuln", 5, TextAnchor.MiddleLeft,
+                new CanvasUtil.RectData(new Vector2(400, 10), new Vector2(20, 0)), CanvasUtil.gameFont);
+            InvulnText.name = "InvulnText";
+            InvulnText.SetActive(false);
+            #endregion
+
+            #region SaveStates
+            ShowStatsGameObject = CanvasUtil.CreateTextPanel(DebugPanel, "", 4, TextAnchor.MiddleLeft,
+                new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(0, -90)), CanvasUtil.gameFont);
+            ShowStatsGameObject.name = "ShowStatsGameObject";
+            ShowStatsGameObject.SetActive(false);
+            ShowStatsText = ShowStatsGameObject.GetComponent<Text>();
+            
+            ShowStatesGameObject = CanvasUtil.CreateTextPanel(DebugPanel, "", 4, TextAnchor.MiddleLeft,
+                new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(0, -175)), CanvasUtil.gameFont);
+            ShowStatesGameObject.name = "ShowStatesGameObject";
+            ShowStatesGameObject.SetActive(false);
+            ShowStatesText = ShowStatesGameObject.GetComponent<Text>();
+            
+            DisplayLoadingSavingGameObject = CanvasUtil.CreateTextPanel(DebugPanel, "", 10, TextAnchor.MiddleLeft,
+                new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(280, -200)), CanvasUtil.gameFont);
+            DisplayLoadingSavingGameObject.name = "DisplayLoadingSavingGameObject";
+            DisplayLoadingSavingGameObject.SetActive(false);
+            DisplayLoadingSavingText = DisplayLoadingSavingGameObject.GetComponent<Text>();
+            #endregion
         }
 
         public static void findFileNames()
@@ -21,23 +67,18 @@ namespace Haiku.DebugMod {
             if (fileNames == null) return;
         }
 
-        private void OnGUI()
+        private void Update()
         {
-            GUI.Label(new Rect(5, 5, 100, 30), $"Debug");
+            Hooks.timer += 0.02f;
 
             #region Cheats
-            if (MiniCheats.IgnoreHeat)
-            {
-                GUI.Label(new Rect(105, 5, 50, 30), "NoHeat");
-            }
+            NoHeatText.SetActive(MiniCheats.IgnoreHeat);
 
-            if (MiniCheats.Invuln)
-            {
-                GUI.Label(new Rect(155, 5, 50, 30), "Invuln");
-            }
+            InvulnText.SetActive(MiniCheats.Invuln);
 
             if (ShowStats)
             {
+                ShowStatsGameObject.SetActive(true);
                 var gm = GameManager.instance;
                 if (!gm) return;
 
@@ -92,33 +133,25 @@ namespace Haiku.DebugMod {
                                        gm.chipSlot.Length + gm.trainStations.Length + 9 + 8 + 3);
                 completePercent += bossCount;
 
-                int y0 = 300;
-                GUI.Label(new Rect(5, y0, 200, 20), $"Map Tiles {tileCount}/{gm.mapTiles.Length}");
-                GUI.Label(new Rect(5, y0 + 20, 200, 20), $"Disruptors {disruptCount}/{gm.disruptors.Length}");
-                GUI.Label(new Rect(5, y0 + 40, 200, 20), $"Chips {chipCount}/{gm.chip.Length}");
-                GUI.Label(new Rect(5, y0 + 60, 200, 20), $"Chip Slots {slotCount}/{gm.chipSlot.Length}");
-                GUI.Label(new Rect(5, y0 + 80, 200, 20), $"Power Cells {cellCount}/{gm.powerCells.Length}");
-                GUI.Label(new Rect(5, y0 + 100, 200, 20), $"Bosses {bossCount}/{gm.bosses.Length}");
-                GUI.Label(new Rect(5, y0 + 120, 200, 20), $"Stations {stationCount}/{gm.trainStations.Length}");
-                GUI.Label(new Rect(5, y0 + 140, 200, 20), $"Coolant {gm.coolingPoints}/3");
-                GUI.Label(new Rect(5, y0 + 160, 200, 20), $"Health {gm.maxHealth}/8");
-                GUI.Label(new Rect(5, y0 + 180, 200, 20), $"Abilities {abilityCount}/9");
-                GUI.Label(new Rect(5, y0 + 200, 200, 20), $"Completion {completePercent:0.00}%");
-
-
+                string stats = $"Map Tiles {tileCount}/{gm.mapTiles.Length}" + "\n" + $"Disruptors {disruptCount}/{gm.disruptors.Length}" + "\n" +
+                    $"Chips {chipCount}/{gm.chip.Length}" + "\n" + $"Chip Slots {slotCount}/{gm.chipSlot.Length}" + "\n" +
+                    $"Power Cells {cellCount}/{gm.powerCells.Length}" + "\n" + $"Bosses {bossCount}/{gm.bosses.Length}" + "\n" + 
+                    $"Stations {stationCount}/{gm.trainStations.Length}" + "\n" + $"Coolant {gm.coolingPoints}/3" + "\n" +
+                    $"Health {gm.maxHealth}/8" + "\n" + $"Abilities {abilityCount}/9" + "\n" + $"Abilities {abilityCount}/9" + "\n" +
+                    $"Completion {completePercent:0.00}%";
                 var player = PlayerScript.instance;
                 if (player)
                 {
-                    GUI.Label(new Rect(5, y0 + 240, 200, 20), $"Invuln {player.isInvunerableTimer:0.00}s");
+                    stats += "\n" + $"Invuln {player.isInvunerableTimer:0.00}s";
                 }
 
                 var activeScene = SceneManager.GetActiveScene();
                 if (activeScene.IsValid())
                 {
-                    GUI.Label(new Rect(5, y0 + 260, 200, 20), $"Scene# {activeScene.buildIndex} : {activeScene.name}");
+                    stats += "\n" + $"Scene# {activeScene.buildIndex} : {activeScene.name}";
                 }
-                GUI.Label(new Rect(5, y0 + 280,200,20), $"Player Position: {PlayerScript.instance.transform.position.x} : {PlayerScript.instance.transform.position.y}");
-
+                stats += "\n" + $"Player Position: {PlayerScript.instance.transform.position.x} : {PlayerScript.instance.transform.position.y}";
+                ShowStatsText.GetComponent<Text>().text = stats;
             }
 
             if (Event.current.type.Equals(EventType.Repaint))
@@ -128,39 +161,41 @@ namespace Haiku.DebugMod {
             #endregion
 
             #region SaveStateUI
-            GUIStyle saveStateStyle = GUIStyle.none;
-            saveStateStyle.fontSize = 30;
-            saveStateStyle.normal.textColor = Color.white;
+            bool displayLoadingSaving = SaveStates.SaveStatesManager.isSaving || SaveStates.SaveStatesManager.isLoading;
+            DisplayLoadingSavingGameObject.SetActive(displayLoadingSaving);
             if (SaveStates.SaveStatesManager.isSaving)
             {
                 if (SaveStates.SaveStatesManager.saveSlot == -1)
                 {
-                    GUI.Label(new Rect(Screen.width - 350, Screen.height - 100, 100, 50), "Saved to Quick Slot", saveStateStyle);
+                    DisplayLoadingSavingText.text = "Saved to Quick Slot";
                 }
                 else
                 {
-                    GUI.Label(new Rect(Screen.width - 350, Screen.height - 100, 100, 50), string.Format("Saved to Slot {0}", SaveStates.SaveStatesManager.saveSlot), saveStateStyle);
+                    DisplayLoadingSavingText.text = $"Saved to Slot {SaveStates.SaveStatesManager.saveSlot}";
                 }
             }
             if (SaveStates.SaveStatesManager.isLoading)
             {
                 if (SaveStates.SaveStatesManager.saveSlot == -1)
                 {
-                    GUI.Label(new Rect(Screen.width - 350, Screen.height - 100, 100, 50), "Loaded Quick Slot", saveStateStyle);
+                    DisplayLoadingSavingText.text = "Loaded Quick Slot";
                 }
                 else
                 {
-                    GUI.Label(new Rect(Screen.width - 350, Screen.height - 100, 100, 50), string.Format("Loaded Slot {0}", SaveStates.SaveStatesManager.loadSlot), saveStateStyle);
+                    DisplayLoadingSavingText.text = $"Loaded Slot {SaveStates.SaveStatesManager.loadSlot}";
                 }
             }
+
+            ShowStatesGameObject.SetActive(SaveStates.SaveStatesManager.showFiles);
             if (SaveStates.SaveStatesManager.showFiles)
             {
-                GUI.Label(new Rect(5, 600, 200, 20), "Current Page: " + SaveStates.SaveStatesManager.currentPage.ToString());
+                string states = "Current Page: " + SaveStates.SaveStatesManager.currentPage.ToString();
                 for (int i = 1; i < fileNames.Length; i++) 
                 {
-                    GUI.Label(new Rect(5, 620 + i * 20, 200, 20), $"{i}: " + fileNames[i]);
+                    states += "\n" + $"{i}: " + fileNames[i];
                 }
-                GUI.Label(new Rect(5, 620 + fileNames.Length * 20, 200, 20), $"{0}: " + fileNames[0]);
+                states += "\n" + $"{0}: " + fileNames[0];
+                ShowStatesText.text = states;
             }
             #endregion
         }

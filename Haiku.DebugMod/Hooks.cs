@@ -8,6 +8,7 @@ using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections;
 
 namespace Haiku.DebugMod {
     public static class Hooks {
@@ -30,6 +31,7 @@ namespace Haiku.DebugMod {
             On.CanvasAspectScaler.Update += MainCanvasUpdate;
             On.LoadNewLevel.Awake += TransitionToNextRoom;
             On.MapTile.CheckMyTile += MapTileCheck;
+            //On.MapTileMask.CheckIfVisible += MapTileVisibe;
             #endregion
             #region Save enemies in Scene
             On.EnemyHealth.Start += EnemySpawned;
@@ -74,7 +76,6 @@ namespace Haiku.DebugMod {
             orig(self);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            if (MapWarp.MapRooms.Length != 0) return;
             MapWarp.MapRooms = self.rooms;
         }
 
@@ -126,20 +127,10 @@ namespace Haiku.DebugMod {
 
         private static bool MapTileCheck(On.MapTile.orig_CheckMyTile orig, MapTile self)
         {
-            bool result = false;
-            if (self.TryGetComponent<Image>(out Image img))
-            {
-                img.raycastTarget = true;
-                if (GameManager.instance.mapTiles[self.tileID].explored)
-                {
-                    img.color = new Color(1f, 1f, 1f, 0f);
-                    result = true;
-                }
-            }
-            return result;
+            MapWarp.MapTiles[self.tileID] = self.gameObject;
+            return orig(self);
         }
         #endregion
-
         #region Save enemies in Scene
         private static void EnemySpawned(On.EnemyHealth.orig_Start orig, EnemyHealth self)
         {

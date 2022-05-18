@@ -8,22 +8,13 @@ namespace Haiku.DebugMod
 {
     internal static class MapWarp
     {
+        public static GameObject QuickMapReference = null;
         public static GameObject[] MapRooms = new GameObject[0];
         private static GameObject MapWarpSelectOverlay = null;
+        public static GameObject[] MapTiles = new GameObject[GameManager.instance.mapTiles.Length];
         public static void MoveSelectObject(GameObject canvas)
         {
-            PointerEventData ped = new PointerEventData(null);
-            ped.position = Input.mousePosition;
-            List<RaycastResult> results = new();
-            canvas.GetComponent<GraphicRaycaster>().Raycast(ped, results);
-            GameObject MaskMapTile = null;
-            foreach (RaycastResult result in results)
-            {
-                if (result.gameObject.name.StartsWith("Mask Map Tile"))
-                {
-                    MaskMapTile = result.gameObject;
-                }
-            }
+            GameObject MaskMapTile = findClosestRoom(MapTiles,Input.mousePosition);
             if (MaskMapTile != null)
             {
                 Image imgOfSelectedMapTile;
@@ -42,7 +33,6 @@ namespace Haiku.DebugMod
                     imgOfSelectedMapTile = MapWarpSelectOverlay.GetComponent<Image>();
                 }
                 MapWarpSelectOverlay.transform.position = MaskMapTile.transform.position;
-                Debug.Log("Position of select" + MaskMapTile.transform.position);
                 RectTransform MaskMapTileRect = MaskMapTile.GetComponent<RectTransform>();
                 imgOfSelectedMapTile.rectTransform.sizeDelta = new Vector2(MaskMapTileRect.rect.width, MaskMapTileRect.rect.height);
             }
@@ -53,10 +43,13 @@ namespace Haiku.DebugMod
         {
             try
             {
-                GameObject temp = findClosestRoom(Input.mousePosition);
-                if (temp != null)
+                GameObject temp = findClosestRoom(MapRooms, Input.mousePosition);
+                // Unused room that we don't want to teleport to
+                Debug.Log(temp);
+                if (temp != null && !temp.name.Equals("E7") && !temp.name.Equals("r12"))
                 {
                     GameManager.instance.StartCoroutine(SaveStates.SaveStatesManager.LoadScene(temp.name));
+                    CameraBehavior.instance.ResumeHideUI();
                 }
                 else
                 {
@@ -69,13 +62,13 @@ namespace Haiku.DebugMod
             }
         }
 
-        private static GameObject findClosestRoom(Vector2 mousePos)
+        private static GameObject findClosestRoom(GameObject[] rooms, Vector2 mousePos)
         {
             // Goes through all rooms and finds the nearest to the Mouse Position within 300f** range
-            if (MapRooms.Length == 0) return null;
+            if (rooms.Length == 0) return null;
             GameObject closestRoom = null;
-            float smallestDistance = 300f * 300f;
-            foreach (GameObject room in MapRooms)
+            float smallestDistance = 250f * 250f;
+            foreach (GameObject room in rooms)
             {
                 float distance = calcDistSquared(mousePos,room.transform.position);
                 if (distance < smallestDistance)
@@ -84,7 +77,6 @@ namespace Haiku.DebugMod
                     smallestDistance = distance;
                 }
             }
-            Debug.Log(closestRoom + " : " + closestRoom.transform.position);
             return closestRoom;
         }
 
