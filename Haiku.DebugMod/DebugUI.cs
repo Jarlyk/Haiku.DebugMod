@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Haiku.DebugMod {
     public sealed class DebugUI : MonoBehaviour {
-        public static bool ShowStats;
+        public static bool ShowStats = false;
         private static string[] fileNames = new string[10];
         GameObject DebugCanvas;
         GameObject NoHeatText;
@@ -76,9 +76,10 @@ namespace Haiku.DebugMod {
 
             InvulnText.SetActive(MiniCheats.Invuln);
 
+            ShowStatsGameObject.SetActive(ShowStats);
             if (ShowStats)
             {
-                ShowStatsGameObject.SetActive(true);
+                
                 var gm = GameManager.instance;
                 if (!gm) return;
 
