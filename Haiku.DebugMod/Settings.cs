@@ -17,6 +17,10 @@ namespace Haiku.DebugMod
         public static ConfigEntry<KeyboardShortcut> IgnoreHeat;
         public static ConfigEntry<KeyboardShortcut> ShowHitboxes;
         public static ConfigEntry<KeyboardShortcut> ShowStats;
+        public static ConfigEntry<KeyboardShortcut> CameraFollow;
+        public static ConfigEntry<KeyboardShortcut> CameraIncZoom;
+        public static ConfigEntry<KeyboardShortcut> CameraDecZoom;
+        public static ConfigEntry<KeyboardShortcut> CameraResetZoom;
         #endregion
 
         #region SaveStates
@@ -40,6 +44,11 @@ namespace Haiku.DebugMod
         public static void initSettings(ConfigFile config)
         {
             #region Cheats
+            CameraFollow = config.Bind("Cheats", "CameraFollow", new KeyboardShortcut(KeyCode.H), ConfigManagerUtil.setPosition(8));
+            CameraIncZoom = config.Bind("Cheats", "CameraIncreaseZoom", new KeyboardShortcut(KeyCode.PageUp), ConfigManagerUtil.setPosition(6));
+            CameraDecZoom = config.Bind("Cheats", "CameraDecreaseZoom", new KeyboardShortcut(KeyCode.PageDown), ConfigManagerUtil.setPosition(5));
+            CameraResetZoom = config.Bind("Cheats", "CameraResetZoom", new KeyboardShortcut(KeyCode.G), ConfigManagerUtil.setPosition(7));
+
             Invuln = config.Bind("Cheats", "ToggleInvuln", new KeyboardShortcut(KeyCode.F2), ConfigManagerUtil.setPosition(4));
             IgnoreHeat = config.Bind("Cheats", "IgnoreHeat", new KeyboardShortcut(KeyCode.F3), ConfigManagerUtil.setPosition(3));
             ShowHitboxes = config.Bind("Cheats", "ShowHitboxes", new KeyboardShortcut(KeyCode.F4), ConfigManagerUtil.setPosition(2));

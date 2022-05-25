@@ -79,6 +79,6 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Copy SourceFiles="$(TargetDir)Haiku.DebugMod.dll" DestinationFiles="$(GamePath)\BepInEx\plugins\Haiku.DebugMod.dll" />
+		<Copy SourceFiles="$(TargetDir)Haiku.DebugMod.dll" DestinationFiles="$(GamePath)\BepInEx\plugins\Debug\Haiku.DebugMod.dll" />
 	</Target>
 </Project>

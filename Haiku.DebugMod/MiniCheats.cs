@@ -3,6 +3,9 @@ namespace Haiku.DebugMod {
         public static bool Invuln;
         public static bool IgnoreHeat;
         public static bool QuickMapWarp = false;
+        public static bool CameraFollow = false;
+        public static float CameraZoom = 7f;
+        public static float InitCameraZoom = 7f;
 
         public static bool IsInvuln() {
             return Invuln;

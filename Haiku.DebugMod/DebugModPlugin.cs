@@ -27,13 +27,6 @@ namespace Haiku.DebugMod
             Hooks.Init();
             HitboxRendering.Init();
 
-            //LogArray("powerCells");
-            //LogArray("mapTiles");
-            //LogArray("disruptors");
-            //LogArray("chip");
-            //LogArray("chipSlot");
-            //LogArray("trainStations");
-
             instance.gameObject.AddComponent<DebugUI>();
         }
 

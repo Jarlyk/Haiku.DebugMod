@@ -20,7 +20,7 @@ namespace Haiku.DebugMod {
         Text ShowStatesText;
         Text DisplayLoadingSavingText;
 
-        private void Start()
+        void Start()
         {
             DebugCanvas = CanvasUtil.CreateCanvas(1);
             DebugCanvas.transform.SetParent(gameObject.transform);
@@ -67,7 +67,7 @@ namespace Haiku.DebugMod {
             if (fileNames == null) return;
         }
 
-        private void Update()
+        void Update()
         {
             Hooks.timer += 0.02f;
 

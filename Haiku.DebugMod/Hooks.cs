@@ -6,6 +6,7 @@ using MonoMod.Cil;
 using BepInEx;
 using BepInEx.Configuration;
 using UnityEngine;
+using UnityEngine.U2D;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
@@ -18,12 +19,15 @@ namespace Haiku.DebugMod {
         public static float timer = 0f;
         private static float frequencyOfUpdates = 0.2f;
 
+        private static bool isPixelPerfect = false;
+
         public static void Init()
         {
             #region Cheats
             IL.PlayerHealth.TakeDamage += UpdateTakeDamage;
             IL.PlayerHealth.StunAndTakeDamage += UpdateTakeDamage;
             IL.ManaManager.AddHeat += UpdateAddHeat;
+            On.CameraBehavior.Update += CameraFollow;
             #endregion
             #region Map Warp
             On.PlayerLocation.OnEnable += QuickMapEnabled;
@@ -31,13 +35,32 @@ namespace Haiku.DebugMod {
             On.CanvasAspectScaler.Update += MainCanvasUpdate;
             On.LoadNewLevel.Awake += TransitionToNextRoom;
             On.MapTile.CheckMyTile += MapTileCheck;
-            //On.MapTileMask.CheckIfVisible += MapTileVisibe;
             #endregion
             #region Save enemies in Scene
             On.EnemyHealth.Start += EnemySpawned;
             On.LoadNewLevel.OnTriggerEnter2D += loadingNewScene;
             #endregion
             SaveStates.SaveData.initSaveStates();
+        }
+
+        private static void CameraFollow(On.CameraBehavior.orig_Update orig, CameraBehavior self)
+        {
+            // Disable years of things that all change orthographicSize >:(
+            if (self.transform.childCount > 6 && self.gameObject.TryGetComponent(out PixelCamera pxCamera))
+            {
+                if (MiniCheats.CameraFollow)
+                {
+                    self.transform.position = PlayerScript.instance.gameObject.transform.position + new Vector3(0f,0f,-5f);
+                    if (pxCamera.enabled)
+                    {
+                        isPixelPerfect = true;
+                        pxCamera.enabled = false;
+                    }
+                    self.gameObject.GetComponent<Camera>().orthographicSize = MiniCheats.CameraZoom;
+                } else if (!pxCamera.enabled && isPixelPerfect) pxCamera.enabled = true;
+                self.transform.GetChild(7).gameObject.SetActive(!MiniCheats.CameraFollow);
+            } 
+            orig(self);
         }
 
         #region Hooks
@@ -172,6 +195,22 @@ namespace Haiku.DebugMod {
             {
                 DebugUI.ShowStats = !DebugUI.ShowStats;
             }
+            if (Settings.CameraFollow.Value.IsDown())
+            {
+                MiniCheats.CameraFollow = !MiniCheats.CameraFollow;
+            }
+            if (Settings.CameraIncZoom.Value.IsPressed())
+            {
+                MiniCheats.CameraZoom += 0.25f;
+            }
+            if (Settings.CameraDecZoom.Value.IsPressed())
+            {
+                MiniCheats.CameraZoom -= 0.25f;
+            }
+            if (Settings.CameraResetZoom.Value.IsDown())
+            {
+                MiniCheats.CameraZoom = MiniCheats.InitCameraZoom;
+            }
             #endregion
 
             #region SaveStates
@@ -223,10 +262,7 @@ namespace Haiku.DebugMod {
                 if (SaveStates.SaveStatesManager.showFiles) DebugUI.findFileNames();
             }
             #endregion
-
-            //TODO: Zoom
-            //CameraFollow
-            //Savepoint warping
+            //TODO: Savepoint warping
         }
     }
 }
