@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace Haiku.DebugMod {
-    public static class HitboxRendering {
+    public class HitboxRendering : MonoBehaviour {
         public static bool ShowHitboxes;
 
         private static Texture2D texBox;
@@ -19,6 +19,14 @@ namespace Haiku.DebugMod {
             texCircle = TextureUtils.LoadEmbedded("circle.png", 64, 64);
             texSolid = new Texture2D(1, 1);
             texSolid.SetPixel(0, 0, Color.white);
+        }
+
+        void OnGUI()
+        {
+            if (Event.current.type.Equals(EventType.Repaint))
+            {
+                Render();
+            }
         }
 
         public static void Render() {

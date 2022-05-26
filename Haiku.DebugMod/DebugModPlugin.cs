@@ -19,21 +19,24 @@ namespace Haiku.DebugMod
 
             On.GameManager.Start += GameManagerStart;
             On.GameManager.Update += GameManagerUpdate;
+
+            //Hooks.Init();
+            HitboxRendering.Init();
+
+            gameObject.AddComponent<DebugUI>();
+            gameObject.AddComponent<HitboxRendering>();
+            gameObject.AddComponent<Hooks>();
         }
 
         private void GameManagerStart(On.GameManager.orig_Start orig, GameManager instance)
         {
             orig(instance);
-            Hooks.Init();
-            HitboxRendering.Init();
-
-            instance.gameObject.AddComponent<DebugUI>();
         }
 
         private void GameManagerUpdate(On.GameManager.orig_Update orig, GameManager instance)
         {
             orig(instance);
-            Hooks.Update();
+            //Hooks.Update();
         }
 
         private void LogArray(string fieldName)

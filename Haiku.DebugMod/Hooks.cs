@@ -12,7 +12,7 @@ using UnityEngine.EventSystems;
 using System.Collections;
 
 namespace Haiku.DebugMod {
-    public static class Hooks {
+    public class Hooks : MonoBehaviour {
         private const BindingFlags AllBindings = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
         public static Vector2 validStartPosition = new Vector2(10f,10f);
         private static bool isQuickMapOpened = false;
@@ -21,7 +21,7 @@ namespace Haiku.DebugMod {
 
         private static bool isPixelPerfect = false;
 
-        public static void Init()
+        void Start()
         {
             #region Cheats
             IL.PlayerHealth.TakeDamage += UpdateTakeDamage;
@@ -174,7 +174,7 @@ namespace Haiku.DebugMod {
         #endregion
         #endregion
 
-        public static void Update()
+        void Update()
         {
             #region Cheats
             if (Settings.Invuln.Value.IsDown())
@@ -189,6 +189,7 @@ namespace Haiku.DebugMod {
             if (Settings.ShowHitboxes.Value.IsDown())
             {
                 HitboxRendering.ShowHitboxes = !HitboxRendering.ShowHitboxes;
+                Debug.Log(HitboxRendering.ShowHitboxes);
             }
 
             if (Settings.ShowStats.Value.IsDown())
@@ -199,18 +200,18 @@ namespace Haiku.DebugMod {
             {
                 MiniCheats.CameraFollow = !MiniCheats.CameraFollow;
             }
-            if (Settings.CameraIncZoom.Value.IsPressed())
+            if (Settings.CameraIncZoom.Value.IsPressed() && MiniCheats.CameraFollow)
             {
                 MiniCheats.CameraZoom += 0.25f;
             }
-            if (Settings.CameraDecZoom.Value.IsPressed())
+            if (Settings.CameraDecZoom.Value.IsPressed() && MiniCheats.CameraFollow)
             {
-                MiniCheats.CameraZoom -= 0.25f;
+                if (MiniCheats.CameraZoom >= MiniCheats.InitCameraZoom) MiniCheats.CameraZoom -= 0.25f;
             }
-            if (Settings.CameraResetZoom.Value.IsDown())
-            {
-                MiniCheats.CameraZoom = MiniCheats.InitCameraZoom;
-            }
+            //if (Settings.CameraResetZoom.Value.IsDown())
+            //{
+            //    MiniCheats.CameraZoom = MiniCheats.InitCameraZoom;
+            //}
             #endregion
 
             #region SaveStates

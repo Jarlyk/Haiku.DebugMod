@@ -11,11 +11,11 @@ namespace Haiku.DebugMod {
         public static bool ShowStats = false;
         private static string[] fileNames = new string[10];
         GameObject DebugCanvas;
-        GameObject NoHeatText;
-        GameObject InvulnText;
+        GameObject CheatsPanel;
         GameObject ShowStatsGameObject;
         GameObject ShowStatesGameObject;
         GameObject DisplayLoadingSavingGameObject;
+        Text CheatsText;
         Text ShowStatsText;
         Text ShowStatesText;
         Text DisplayLoadingSavingText;
@@ -23,30 +23,27 @@ namespace Haiku.DebugMod {
         void Start()
         {
             DebugCanvas = CanvasUtil.CreateCanvas(1);
+            DebugCanvas.name = "DebugCanvas";
             DebugCanvas.transform.SetParent(gameObject.transform);
 
             GameObject DebugPanel = CanvasUtil.CreateBasePanel(DebugCanvas, 
                 new CanvasUtil.RectData(new Vector2(0, 0), new Vector2(10, -4), new Vector2(0, 0), new Vector2(1, 2)));
+            DebugPanel.name = "DebugPanel";
 
             #region Cheats
-            NoHeatText = CanvasUtil.CreateTextPanel(DebugPanel, "NoHeat", 5, TextAnchor.MiddleLeft, 
-                new CanvasUtil.RectData(new Vector2(400, 10), new Vector2(0, 0)), CanvasUtil.gameFont);
-            NoHeatText.name = "NoHeatText";
-            NoHeatText.SetActive(false);
-            
-            InvulnText = CanvasUtil.CreateTextPanel(DebugPanel, "Invuln", 5, TextAnchor.MiddleLeft,
-                new CanvasUtil.RectData(new Vector2(400, 10), new Vector2(20, 0)), CanvasUtil.gameFont);
-            InvulnText.name = "InvulnText";
-            InvulnText.SetActive(false);
+            CheatsPanel = CanvasUtil.CreateTextPanel(DebugPanel, "NoHeat", 5, TextAnchor.MiddleLeft, 
+                new CanvasUtil.RectData(new Vector2(400, 10), new Vector2(0, 0)),CanvasUtil.gameFont);
+            CheatsPanel.name = "CheatsPanel";
+            CheatsText = CheatsPanel.GetComponent<Text>();
             #endregion
 
-            #region SaveStates
             ShowStatsGameObject = CanvasUtil.CreateTextPanel(DebugPanel, "", 4, TextAnchor.MiddleLeft,
                 new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(0, -90)), CanvasUtil.gameFont);
             ShowStatsGameObject.name = "ShowStatsGameObject";
             ShowStatsGameObject.SetActive(false);
             ShowStatsText = ShowStatsGameObject.GetComponent<Text>();
-            
+
+            #region SaveStates
             ShowStatesGameObject = CanvasUtil.CreateTextPanel(DebugPanel, "", 4, TextAnchor.MiddleLeft,
                 new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(0, -175)), CanvasUtil.gameFont);
             ShowStatesGameObject.name = "ShowStatesGameObject";
@@ -72,11 +69,23 @@ namespace Haiku.DebugMod {
             Hooks.timer += 0.02f;
 
             #region Cheats
-            NoHeatText.SetActive(MiniCheats.IgnoreHeat);
-
-            InvulnText.SetActive(MiniCheats.Invuln);
+            string ActiveCheats = "";
+            if (MiniCheats.IgnoreHeat)
+            {
+                ActiveCheats += "No Heat ";
+            }
+            if (MiniCheats.Invuln)
+            {
+                ActiveCheats += "Invuln ";
+            }
+            if (MiniCheats.CameraFollow)
+            {
+                ActiveCheats += $"CamFollow: {CameraBehavior.instance.cameraObject.orthographicSize} ";
+            }
+            CheatsText.text = ActiveCheats;
 
             ShowStatsGameObject.SetActive(ShowStats);
+
             if (ShowStats)
             {
                 
@@ -134,11 +143,16 @@ namespace Haiku.DebugMod {
                                        gm.chipSlot.Length + gm.trainStations.Length + 9 + 8 + 3);
                 completePercent += bossCount;
 
-                string stats = $"Map Tiles {tileCount}/{gm.mapTiles.Length}" + "\n" + $"Disruptors {disruptCount}/{gm.disruptors.Length}" + "\n" +
-                    $"Chips {chipCount}/{gm.chip.Length}" + "\n" + $"Chip Slots {slotCount}/{gm.chipSlot.Length}" + "\n" +
-                    $"Power Cells {cellCount}/{gm.powerCells.Length}" + "\n" + $"Bosses {bossCount}/{gm.bosses.Length}" + "\n" + 
-                    $"Stations {stationCount}/{gm.trainStations.Length}" + "\n" + $"Coolant {gm.coolingPoints}/3" + "\n" +
-                    $"Health {gm.maxHealth}/8" + "\n" + $"Abilities {abilityCount}/9" + "\n" + $"Abilities {abilityCount}/9" + "\n" +
+                string stats = $"Map Tiles {tileCount}/{gm.mapTiles.Length}" + "\n" + 
+                    $"Disruptors {disruptCount}/{gm.disruptors.Length}" + "\n" +
+                    $"Chips {chipCount}/{gm.chip.Length}" + "\n" + 
+                    $"Chip Slots {slotCount}/{gm.chipSlot.Length}" + "\n" +
+                    $"Power Cells {cellCount}/{gm.powerCells.Length}" + "\n" + 
+                    $"Bosses {bossCount}/{gm.bosses.Length}" + "\n" + 
+                    $"Stations {stationCount}/{gm.trainStations.Length}" + "\n" + 
+                    $"Coolant {gm.coolingPoints}/3" + "\n" +
+                    $"Health {gm.maxHealth}/8" + "\n" + 
+                    $"Abilities {abilityCount}/9" + "\n" + 
                     $"Completion {completePercent:0.00}%";
                 var player = PlayerScript.instance;
                 if (player)

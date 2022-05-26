@@ -1,7 +1,7 @@
 namespace Haiku.DebugMod {
     public static class MiniCheats {
-        public static bool Invuln;
-        public static bool IgnoreHeat;
+        public static bool Invuln = false;
+        public static bool IgnoreHeat = false;
         public static bool QuickMapWarp = false;
         public static bool CameraFollow = false;
         public static float CameraZoom = 7f;
