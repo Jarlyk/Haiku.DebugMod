@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<ExportDir>G:\Coding\Finished Mods</ExportDir>
 		<LangVersion>9</LangVersion>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<GamePath>G:\SteamLibrary\steamapps\common\Haiku the Robot</GamePath>
@@ -16,7 +17,22 @@
 		<EmbeddedResource Include="Images\circle.png" />
 		<EmbeddedResource Include="Images\square.png" />
 	</ItemGroup>
-
+	
+	<Target Name="CopyMod" AfterTargets="PostBuildEvent">
+		<RemoveDir Condition="Exists('$(ExportDir)/$(TargetName)/')" Directories="$(ExportDir)/$(TargetName)/" />
+		<MakeDir Directories="$(ExportDir)/$(TargetName)/" />
+		
+		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExportDir)/$(TargetName)/" />
+		
+		<PropertyGroup>
+			<OutputFileString>SHA256 - $(AssemblyTitle).dll, Version $(AssemblyVersion):</OutputFileString>
+		</PropertyGroup>
+		<GetFileHash Files="$(ExportDir)/$(TargetName)/$(TargetName).dll" Algorithm="SHA256">
+			<Output TaskParameter="Items" ItemName="FilesWithHashes" />
+		</GetFileHash>
+		<WriteLinesToFile File="$(ExportDir)/$(TargetName)/SHA.txt" Lines="$(OutputFileString);@(FilesWithHashes->'%(FileHash)')" Overwrite="true" Encoding="UTF-8" />
+	</Target>
+	
 	<ItemGroup>
 		<Reference Include="Assembly-CSharp.dll">
 			<HintPath>..\lib\Game\Assembly-CSharp.dll</HintPath>
@@ -27,9 +43,12 @@
 		<Reference Include="BepInEx">
 			<HintPath>..\lib\BepInEx\BepInEx.dll</HintPath>
 		</Reference>
-		<Reference Include="Haiku.CoreModdingApi">
+	<!--<Reference Include="Haiku.CoreModdingApi">
 			<HintPath>..\lib\Haiku.CoreModdingApi.dll</HintPath>
-		</Reference>
+		</Reference> -->
+		<Reference Include="Haiku.CoreModdingApi">
+			<HintPath>$(GamePath)/BepInEx/plugins/Modding API/Haiku.CoreModdingApi.dll</HintPath>
+		</Reference> 
 		<Reference Include="Mono.Cecil">
 			<HintPath>..\lib\BepInEx\Mono.Cecil.dll</HintPath>
 		</Reference>
@@ -80,5 +99,11 @@
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Copy SourceFiles="$(TargetDir)Haiku.DebugMod.dll" DestinationFiles="$(GamePath)\BepInEx\plugins\Debug\Haiku.DebugMod.dll" />
+		<GetFileHash Files="$(TargetDir)Haiku.DebugMod.dll" Algorithm="SHA256">
+			<Output TaskParameter="Items" ItemName="FilesWithHashes" />
+		</GetFileHash>
+		<WriteLinesToFile File="$(TargetDir)/../../../../SHA.txt" Lines="$(OutputFileString);@(FilesWithHashes->'%(FileHash)')" Overwrite="true" Encoding="UTF-8" />
 	</Target>
+	
+	
 </Project>

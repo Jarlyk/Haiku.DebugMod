@@ -32,26 +32,26 @@ namespace Haiku.DebugMod {
 
             #region Cheats
             CheatsPanel = CanvasUtil.CreateTextPanel(DebugPanel, "NoHeat", 5, TextAnchor.MiddleLeft, 
-                new CanvasUtil.RectData(new Vector2(400, 10), new Vector2(0, 0)),CanvasUtil.gameFont);
+                new CanvasUtil.RectData(new Vector2(400, 10), new Vector2(0, 0)),CanvasUtil.GameFont);
             CheatsPanel.name = "CheatsPanel";
             CheatsText = CheatsPanel.GetComponent<Text>();
             #endregion
 
             ShowStatsGameObject = CanvasUtil.CreateTextPanel(DebugPanel, "", 4, TextAnchor.MiddleLeft,
-                new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(0, -90)), CanvasUtil.gameFont);
+                new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(0, -90)), CanvasUtil.GameFont);
             ShowStatsGameObject.name = "ShowStatsGameObject";
             ShowStatsGameObject.SetActive(false);
             ShowStatsText = ShowStatsGameObject.GetComponent<Text>();
 
             #region SaveStates
             ShowStatesGameObject = CanvasUtil.CreateTextPanel(DebugPanel, "", 4, TextAnchor.MiddleLeft,
-                new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(0, -175)), CanvasUtil.gameFont);
+                new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(0, -175)), CanvasUtil.GameFont);
             ShowStatesGameObject.name = "ShowStatesGameObject";
             ShowStatesGameObject.SetActive(false);
             ShowStatesText = ShowStatesGameObject.GetComponent<Text>();
             
             DisplayLoadingSavingGameObject = CanvasUtil.CreateTextPanel(DebugPanel, "", 10, TextAnchor.MiddleLeft,
-                new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(280, -200)), CanvasUtil.gameFont);
+                new CanvasUtil.RectData(new Vector2(400, 300), new Vector2(280, -200)), CanvasUtil.GameFont);
             DisplayLoadingSavingGameObject.name = "DisplayLoadingSavingGameObject";
             DisplayLoadingSavingGameObject.SetActive(false);
             DisplayLoadingSavingText = DisplayLoadingSavingGameObject.GetComponent<Text>();

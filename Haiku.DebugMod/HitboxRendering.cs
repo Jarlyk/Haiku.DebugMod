@@ -21,14 +21,6 @@ namespace Haiku.DebugMod {
             texSolid.SetPixel(0, 0, Color.white);
         }
 
-        void OnGUI()
-        {
-            if (Event.current.type.Equals(EventType.Repaint))
-            {
-                Render();
-            }
-        }
-
         public static void Render() {
             if (!ShowHitboxes) return;
 
