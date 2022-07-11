@@ -11,16 +11,17 @@ namespace Haiku.DebugMod.SaveStates {
 
         private static string[] fileNameData = new string[10];
 
-        private static HashSet<int> enemiesIDInCurrentScene = new();
 
-        public static void AddID(int ID)
+        private static Dictionary<string, float> enemyDeathTimes = new();
+
+        public static void RegisterDeath(int enemyID, int sceneID, float deathTime)
         {
-            enemiesIDInCurrentScene.Add(ID);
+            enemyDeathTimes["Enemy" + enemyID + sceneID] = deathTime;
         }
 
-        public static void clearEnemyIDHashset()
+        public static void ClearEnemyDeathTimes()
         {
-            enemiesIDInCurrentScene.Clear();
+            enemyDeathTimes.Clear();
         }
 
         public static void initSaveStates()
@@ -98,18 +99,7 @@ namespace Haiku.DebugMod.SaveStates {
                 fileNameData[slot] = name;
             }
             es3SaveFile.Save<float>("timePlayed", GameManager.instance.timePlayed);
-            if (enemiesIDInCurrentScene.Count > 0)
-            {
-                foreach (int i in enemiesIDInCurrentScene)
-                {
-                    if (PlayerPrefs.HasKey("Enemy" + i + activeScene.buildIndex))
-                    {
-                        es3SaveFile.Save<float>($"Enemy{i}DeathTime", PlayerPrefs.GetFloat("Enemy" + i + activeScene.buildIndex));
-                    }
-                }
-                es3SaveFile.Save<HashSet<int>>("EnemyIDS", enemiesIDInCurrentScene);
-            }
-
+            es3SaveFile.Save<Dictionary<string, float>>(nameof(enemyDeathTimes), enemyDeathTimes);
 
             es3SaveFile.Save<int>("savePointSceneIndex", GameManager.instance.savePointSceneIndex);
             es3SaveFile.Save<int>("maxHealth", GameManager.instance.maxHealth);
@@ -397,20 +387,11 @@ namespace Haiku.DebugMod.SaveStates {
 
             GameManager.instance.timePlayed = es3SaveFile.Load<float>("timePlayed", GameManager.instance.timePlayed);
 
-            HashSet<int> enemyIDsInSavedScene = es3SaveFile.Load<HashSet<int>>("EnemyIDS", new HashSet<int>());
-            if (enemyIDsInSavedScene.Count > 0)
+            PlayerPrefs.DeleteAll();
+            enemyDeathTimes = es3SaveFile.Load<Dictionary<string, float>>(nameof(enemyDeathTimes), new());
+            foreach (KeyValuePair<string, float> kvp in enemyDeathTimes)
             {
-                foreach(int id in enemyIDsInSavedScene)
-                {
-                    float loadedDeathTime = es3SaveFile.Load<float>($"Enemy{id}DeathTime", -1f);
-                    if (loadedDeathTime == -1f)
-                    {
-                        Debug.LogError($"Couldn't Load Enemy{id}DeathTime, setting it to 0 instead");
-                        PlayerPrefs.SetFloat("Enemy" + id + sceneToLoad, 0f);
-                        continue;
-                    }
-                    PlayerPrefs.SetFloat("Enemy" + id + sceneToLoad, es3SaveFile.Load<float>($"Enemy{id}DeathTime"));
-                }
+                PlayerPrefs.SetFloat(kvp.Key, kvp.Value);
             }
         }
     }
