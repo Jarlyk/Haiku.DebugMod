@@ -22,6 +22,7 @@ namespace Haiku.DebugMod
             HitboxRendering.Init();
             RepairStationWarp.InitHooks();
             QoL.InitHooks();
+            AbilityToggling.InitHooks();
 
             On.PCSaveManager.Load += PCSaveManager_Load;
             On.PCSaveManager.Save += PCSaveManager_Save;

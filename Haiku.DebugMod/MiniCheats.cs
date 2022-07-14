@@ -29,6 +29,13 @@ namespace Haiku.DebugMod {
             {
                 GameManager.instance.disruptors[j].destroyed = true;
             }
+
+            //Turn on all map markers
+            GameManager.instance.showPowercells = true;
+            GameManager.instance.showHealthStations = true;
+            GameManager.instance.showBankStations = true;
+            GameManager.instance.showVendors = true;
+            GameManager.instance.showTrainStations = true;
         }
     }
 }
