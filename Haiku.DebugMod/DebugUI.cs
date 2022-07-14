@@ -67,109 +67,32 @@ namespace Haiku.DebugMod {
         void Update()
         {
             Hooks.timer += 0.02f;
+            var cameraBehavior = CameraBehavior.instance;
 
             #region Cheats
-            string ActiveCheats = "";
+            string activeCheats = "";
             if (MiniCheats.IgnoreHeat)
             {
-                ActiveCheats += "No Heat ";
+                activeCheats += "No Heat ";
             }
             if (MiniCheats.Invuln)
             {
-                ActiveCheats += "Invuln ";
+                activeCheats += "Invuln ";
             }
-            if (MiniCheats.CameraFollow)
+            if (MiniCheats.CameraFollow && cameraBehavior)
             {
-                ActiveCheats += $"CamFollow: {CameraBehavior.instance.cameraObject.orthographicSize} ";
+                activeCheats += $"CamFollow: {cameraBehavior.cameraObject.orthographicSize} ";
             }
-            CheatsText.text = ActiveCheats;
+            CheatsText.text = activeCheats;
 
             ShowStatsGameObject.SetActive(ShowStats);
 
             if (ShowStats)
             {
-                
-                var gm = GameManager.instance;
-                if (!gm) return;
-
-                var tileCount = gm.mapTiles.Count(t => t.explored);
-                var chipCount = gm.chip.Count(c => c.collected);
-                var bossCount = gm.bosses.Count(b => b.defeated);
-                var cellCount = gm.powerCells.Count(c => c.collected);
-                var disruptCount = gm.disruptors.Count(d => d.destroyed);
-                var slotCount = gm.chipSlot.Count(s => s.collected);
-                var stationCount = gm.trainStations.Count(s => s.unlockedStation);
-
-                int abilityCount = 0;
-                if (gm.canBomb)
-                {
-                    abilityCount++;
-                }
-                if (gm.canRoll)
-                {
-                    abilityCount++;
-                }
-                if (gm.canWallJump)
-                {
-                    abilityCount++;
-                }
-                if (gm.canDoubleJump)
-                {
-                    abilityCount++;
-                }
-                if (gm.canGrapple)
-                {
-                    abilityCount++;
-                }
-                if (gm.canTeleport)
-                {
-                    abilityCount++;
-                }
-                if (gm.waterRes)
-                {
-                    abilityCount++;
-                }
-                if (gm.fireRes)
-                {
-                    abilityCount++;
-                }
-                if (gm.lightBulb)
-                {
-                    abilityCount++;
-                }
-
-                var completePercent = 85f * (tileCount + chipCount + cellCount + disruptCount + slotCount + stationCount + abilityCount + gm.maxHealth + gm.coolingPoints) /
-                                      (gm.mapTiles.Length + gm.chip.Length + gm.powerCells.Length + gm.disruptors.Length +
-                                       gm.chipSlot.Length + gm.trainStations.Length + 9 + 8 + 3);
-                completePercent += bossCount;
-
-                string stats = $"Map Tiles {tileCount}/{gm.mapTiles.Length}" + "\n" + 
-                    $"Disruptors {disruptCount}/{gm.disruptors.Length}" + "\n" +
-                    $"Chips {chipCount}/{gm.chip.Length}" + "\n" + 
-                    $"Chip Slots {slotCount}/{gm.chipSlot.Length}" + "\n" +
-                    $"Power Cells {cellCount}/{gm.powerCells.Length}" + "\n" + 
-                    $"Bosses {bossCount}/{gm.bosses.Length}" + "\n" + 
-                    $"Stations {stationCount}/{gm.trainStations.Length}" + "\n" + 
-                    $"Coolant {gm.coolingPoints}/3" + "\n" +
-                    $"Health {gm.maxHealth}/8" + "\n" + 
-                    $"Abilities {abilityCount}/9" + "\n" + 
-                    $"Completion {completePercent:0.00}%";
-                var player = PlayerScript.instance;
-                if (player)
-                {
-                    stats += "\n" + $"Invuln {player.isInvunerableTimer:0.00}s";
-                }
-
-                var activeScene = SceneManager.GetActiveScene();
-                if (activeScene.IsValid())
-                {
-                    stats += "\n" + $"Scene# {activeScene.buildIndex} : {activeScene.name}";
-                }
-                stats += "\n" + $"Player Position: {PlayerScript.instance.transform.position.x} : {PlayerScript.instance.transform.position.y}";
-                ShowStatsText.GetComponent<Text>().text = stats;
+                DoShowStats();
             }
 
-            if (Event.current.type.Equals(EventType.Repaint))
+            if (Event.current is { type: EventType.Repaint })
             {
                 HitboxRendering.Render();
             }
@@ -207,12 +130,108 @@ namespace Haiku.DebugMod {
                 string states = "Current Page: " + SaveStates.SaveStatesManager.currentPage.ToString();
                 for (int i = 1; i < fileNames.Length; i++) 
                 {
-                    states += "\n" + $"{i}: " + fileNames[i];
+                    states += $"\n{i}: {fileNames[i]}";
                 }
-                states += "\n" + $"{0}: " + fileNames[0];
+                states += $"\n0: {fileNames[0]}";
                 ShowStatesText.text = states;
             }
             #endregion
+        }
+
+        private void DoShowStats()
+        {
+            var gm = GameManager.instance;
+            if (!gm) return;
+
+            var tileCount = gm.mapTiles.Count(t => t.explored);
+            var chipCount = gm.chip.Count(c => c.collected);
+            var bossCount = gm.bosses.Count(b => b.defeated);
+            var cellCount = gm.powerCells.Count(c => c.collected);
+            var disruptCount = gm.disruptors.Count(d => d.destroyed);
+            var slotCount = gm.chipSlot.Count(s => s.collected);
+            var stationCount = gm.trainStations.Count(s => s.unlockedStation);
+
+            int abilityCount = 0;
+            if (gm.canBomb)
+            {
+                abilityCount++;
+            }
+
+            if (gm.canRoll)
+            {
+                abilityCount++;
+            }
+
+            if (gm.canWallJump)
+            {
+                abilityCount++;
+            }
+
+            if (gm.canDoubleJump)
+            {
+                abilityCount++;
+            }
+
+            if (gm.canGrapple)
+            {
+                abilityCount++;
+            }
+
+            if (gm.canTeleport)
+            {
+                abilityCount++;
+            }
+
+            if (gm.waterRes)
+            {
+                abilityCount++;
+            }
+
+            if (gm.fireRes)
+            {
+                abilityCount++;
+            }
+
+            if (gm.lightBulb)
+            {
+                abilityCount++;
+            }
+
+            var completePercent = 85f*(tileCount + chipCount + cellCount + disruptCount + slotCount + stationCount +
+                                       abilityCount + gm.maxHealth + gm.coolingPoints)/
+                                  (gm.mapTiles.Length + gm.chip.Length + gm.powerCells.Length + gm.disruptors.Length +
+                                   gm.chipSlot.Length + gm.trainStations.Length + 9 + 8 + 3);
+            completePercent += bossCount;
+
+            string stats = $"Map Tiles {tileCount}/{gm.mapTiles.Length}" + "\n" +
+                           $"Disruptors {disruptCount}/{gm.disruptors.Length}" + "\n" +
+                           $"Chips {chipCount}/{gm.chip.Length}" + "\n" +
+                           $"Chip Slots {slotCount}/{gm.chipSlot.Length}" + "\n" +
+                           $"Power Cells {cellCount}/{gm.powerCells.Length}" + "\n" +
+                           $"Bosses {bossCount}/{gm.bosses.Length}" + "\n" +
+                           $"Stations {stationCount}/{gm.trainStations.Length}" + "\n" +
+                           $"Coolant {gm.coolingPoints}/3" + "\n" +
+                           $"Health {gm.maxHealth}/8" + "\n" +
+                           $"Abilities {abilityCount}/9" + "\n" +
+                           $"Completion {completePercent:0.00}%";
+            var player = PlayerScript.instance;
+            if (player)
+            {
+                stats += "\n" + $"Invuln {player.isInvunerableTimer:0.00}s";
+            }
+
+            var activeScene = SceneManager.GetActiveScene();
+            if (activeScene.IsValid())
+            {
+                stats += "\n" + $"Scene# {activeScene.buildIndex} : {activeScene.name}";
+            }
+
+            if (player)
+            {
+                stats += "\n" + $"Player Position: {player.transform.position.x} : {player.transform.position.y}";
+            }
+
+            ShowStatsText.GetComponent<Text>().text = stats;
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Haiku.DebugMod {
             QuickMapWarp = !QuickMapWarp;
         }
 
-        public static void giveAllMaps()
+        public static void GiveAllMaps()
         {
             for (int i = 0; i < GameManager.instance.mapTiles.Length; i++)
             {

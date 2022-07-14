@@ -1,21 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<ExportDir>G:\Coding\Finished Mods</ExportDir>
+		<ExportDir>D:\ModExport</ExportDir>
 		<LangVersion>9</LangVersion>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<GamePath>G:\SteamLibrary\steamapps\common\Haiku the Robot</GamePath>
+		<GamePath>D:\Steam\steamapps\common\Haiku the Robot</GamePath>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<None Remove="Images\circle.png" />
 		<None Remove="Images\square.png" />
+		<None Remove="Images\WarpPanel.png" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="Images\circle.png" />
 		<EmbeddedResource Include="Images\square.png" />
+		<EmbeddedResource Include="Images\WarpPanel.png" />
 	</ItemGroup>
 	
 	<Target Name="CopyMod" AfterTargets="PostBuildEvent">
@@ -43,12 +45,12 @@
 		<Reference Include="BepInEx">
 			<HintPath>..\lib\BepInEx\BepInEx.dll</HintPath>
 		</Reference>
+		<Reference Include="Haiku.CoreModdingApi">
+		  <HintPath>..\lib\Haiku.CoreModdingApi.dll</HintPath>
+		</Reference>
 	<!--<Reference Include="Haiku.CoreModdingApi">
 			<HintPath>..\lib\Haiku.CoreModdingApi.dll</HintPath>
-		</Reference> -->
-		<Reference Include="Haiku.CoreModdingApi">
-			<HintPath>$(GamePath)/BepInEx/plugins/Modding API/Haiku.CoreModdingApi.dll</HintPath>
-		</Reference> 
+		</Reference> --> 
 		<Reference Include="Mono.Cecil">
 			<HintPath>..\lib\BepInEx\Mono.Cecil.dll</HintPath>
 		</Reference>
@@ -58,8 +60,17 @@
 		<Reference Include="MonoMod.Utils">
 			<HintPath>..\lib\BepInEx\MonoMod.Utils.dll</HintPath>
 		</Reference>
+		<Reference Include="Unity.TextMeshPro">
+		  <HintPath>..\lib\Game\Unity.TextMeshPro.dll</HintPath>
+		</Reference>
 		<Reference Include="UnityEngine">
 			<HintPath>..\lib\Game\UnityEngine.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.AnimationModule">
+		  <HintPath>..\lib\Game\UnityEngine.AnimationModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.ParticleSystemModule">
+		  <HintPath>..\lib\Game\UnityEngine.ParticleSystemModule.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.UI">
 			<HintPath>..\lib\Game\UnityEngine.UI.dll</HintPath>
@@ -87,6 +98,9 @@
 		</Reference>
 		<Reference Include="UnityEngine.TextRenderingModule">
 			<HintPath>..\lib\Game\UnityEngine.TextRenderingModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.UIModule">
+		  <HintPath>..\lib\Game\UnityEngine.UIModule.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 

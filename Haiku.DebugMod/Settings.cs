@@ -21,6 +21,7 @@ namespace Haiku.DebugMod
         public static ConfigEntry<KeyboardShortcut> CameraIncZoom;
         public static ConfigEntry<KeyboardShortcut> CameraDecZoom;
         // public static ConfigEntry<KeyboardShortcut> CameraResetZoom;
+        public static ConfigEntry<bool> UnlimitedWarp;
         #endregion
 
         #region SaveStates
@@ -41,7 +42,7 @@ namespace Haiku.DebugMod
         #endregion
         #endregion
 
-        public static void initSettings(ConfigFile config)
+        public static void InitSettings(ConfigFile config)
         {
             #region Cheats
             CameraFollow = config.Bind("Cheats", "CameraFollow", new KeyboardShortcut(KeyCode.H), ConfigManagerUtil.setPosition(8));
@@ -53,7 +54,9 @@ namespace Haiku.DebugMod
             IgnoreHeat = config.Bind("Cheats", "IgnoreHeat", new KeyboardShortcut(KeyCode.F3), ConfigManagerUtil.setPosition(3));
             ShowHitboxes = config.Bind("Cheats", "ShowHitboxes", new KeyboardShortcut(KeyCode.F4), ConfigManagerUtil.setPosition(2));
             ShowStats = config.Bind("Cheats", "ShowStats", new KeyboardShortcut(KeyCode.F5), ConfigManagerUtil.setPosition(1));
-            ConfigManagerUtil.createButton(config, MiniCheats.giveAllMaps, "Cheats", "GiveMaps", "Give all Maps");
+            ConfigManagerUtil.createButton(config, MiniCheats.GiveAllMaps, "Cheats", "GiveMaps", "Give all Maps");
+            UnlimitedWarp = config.Bind("Cheats", "UnlimitedWarp", false,
+                                        "Allow warping to save stations that have not yet been visited");
             #endregion
 
             #region SaveStates

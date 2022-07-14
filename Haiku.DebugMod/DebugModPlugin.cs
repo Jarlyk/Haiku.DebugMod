@@ -4,39 +4,50 @@ using System.Runtime.InteropServices;
 using System.Text;
 using BepInEx;
 using BepInEx.Configuration;
+using Haiku.DebugMod.Warp;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Haiku.DebugMod
 {
-    [BepInPlugin("haiku.debugmod", "Haiku Debug Mod", "1.0.2.0")]
+    [BepInPlugin("haiku.debugmod", "Haiku Debug Mod", "1.0.3.0")]
     [BepInDependency("haiku.mapi", "1.0.1.0")]
     public sealed class DebugModPlugin : BaseUnityPlugin
     {
         public void Awake()
         {
             // Use BaseUnityPlugin.Config so that ConfigManager works
-            Settings.initSettings(Config);
+            Settings.InitSettings(Config);
 
-            On.GameManager.Start += GameManagerStart;
-            On.GameManager.Update += GameManagerUpdate;
-
-            //Hooks.Init();
             HitboxRendering.Init();
+            RepairStationWarp.InitHooks();
+            QoL.InitHooks();
 
-            gameObject.AddComponent<DebugUI>();
+            On.PCSaveManager.Load += PCSaveManager_Load;
+            On.PCSaveManager.Save += PCSaveManager_Save;
+            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+
             gameObject.AddComponent<HitboxRendering>();
+            gameObject.AddComponent<DebugUI>();
             gameObject.AddComponent<Hooks>();
         }
 
-        private void GameManagerStart(On.GameManager.orig_Start orig, GameManager instance)
+        private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            orig(instance);
+            RepairStationWarp.OnSceneLoaded(scene.buildIndex);
         }
 
-        private void GameManagerUpdate(On.GameManager.orig_Update orig, GameManager instance)
+        private void PCSaveManager_Save(On.PCSaveManager.orig_Save orig, PCSaveManager self, string filepath)
         {
-            orig(instance);
-            //Hooks.Update();
+            orig(self, filepath);
+            RepairStationWarp.SaveToFile(self.es3SaveFile);
+            self.es3SaveFile.Sync();
+        }
+
+        private void PCSaveManager_Load(On.PCSaveManager.orig_Load orig, PCSaveManager self, string filepath)
+        {
+            orig(self, filepath);
+            RepairStationWarp.LoadFromFile(self.es3SaveFile);
         }
 
         private void LogArray(string fieldName)

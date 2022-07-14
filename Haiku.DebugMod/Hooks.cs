@@ -186,7 +186,6 @@ namespace Haiku.DebugMod {
             if (Settings.ShowHitboxes.Value.IsDown())
             {
                 HitboxRendering.ShowHitboxes = !HitboxRendering.ShowHitboxes;
-                Debug.Log(HitboxRendering.ShowHitboxes);
             }
 
             if (Settings.ShowStats.Value.IsDown())
