@@ -33,7 +33,7 @@ namespace Haiku.DebugMod.SaveStates {
             {
                 // Save everything to the current Page and slot selected, and then the Name currently selected in Settings.nameNextSave, otherwise SceneIndex and Name.
                 SaveData.Save(Settings.debugPath + $"/SaveState/{currentPage}/saveData{slot}.haiku",slot);
-                SaveData.saveFileNames(Settings.debugPath + $"/SaveState/{currentPage}/fileNameList.haiku",slot);
+                SaveData.SaveFileNames(Settings.debugPath + $"/SaveState/{currentPage}/fileNameList.haiku",slot);
             }
             // Simple Saving UI
             saveSlot = slot;
@@ -52,8 +52,8 @@ namespace Haiku.DebugMod.SaveStates {
                 loadSlot = slot;
                 SaveData.Load(Settings.debugPath + $"/SaveState/{currentPage}/saveData{slot}.haiku");
             }
-            if (SaveData.sceneToLoad == -1) return;
-            GameManager.instance.StartCoroutine(LoadScene(SaveData.sceneToLoad, true));
+            if (SaveData.SceneToLoad == -1) return;
+            GameManager.instance.StartCoroutine(LoadScene(SaveData.SceneToLoad, true));
             loadSlot = slot;
             GameManager.instance.StartCoroutine(loadingUI());
         }
@@ -93,8 +93,8 @@ namespace Haiku.DebugMod.SaveStates {
 
             // Adjustment for SaveStates
             if (!SaveState) yield break;
-            if (SaveData.lastPosition != new Vector2())
-                PlayerScript.instance.transform.position = SaveData.lastPosition;
+            if (SaveData.LastPosition != new Vector2())
+                PlayerScript.instance.transform.position = SaveData.LastPosition;
             yield break;
         }
 

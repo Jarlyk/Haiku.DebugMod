@@ -40,7 +40,7 @@ namespace Haiku.DebugMod {
             On.GameManager.OnDestroy += OnDestroyGameManager;
             On.EnemyHealth.Die += OnEnemyHealthDie;
             #endregion
-            SaveStates.SaveData.initSaveStates();
+            SaveStates.SaveData.InitSaveStates();
         }
 
         private static void CameraFollow(On.CameraBehavior.orig_Update orig, CameraBehavior self)

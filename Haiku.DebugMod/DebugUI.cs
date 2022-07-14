@@ -60,7 +60,7 @@ namespace Haiku.DebugMod {
 
         public static void findFileNames()
         {
-            fileNames = SaveStates.SaveData.loadFileName(Settings.debugPath + $"/SaveState/{SaveStates.SaveStatesManager.currentPage}/fileNameList.haiku");
+            fileNames = SaveStates.SaveData.LoadFileName(Settings.debugPath + $"/SaveState/{SaveStates.SaveStatesManager.currentPage}/fileNameList.haiku");
             if (fileNames == null) return;
         }
 
