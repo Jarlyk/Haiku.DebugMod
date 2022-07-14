@@ -37,8 +37,8 @@ namespace Haiku.DebugMod {
             On.MapTile.CheckMyTile += MapTileCheck;
             #endregion
             #region Save enemies in Scene
-            On.EnemyHealth.Start += EnemySpawned;
-            On.LoadNewLevel.OnTriggerEnter2D += loadingNewScene;
+            On.GameManager.OnDestroy += OnDestroyGameManager;
+            On.EnemyHealth.Die += OnEnemyHealthDie;
             #endregion
             SaveStates.SaveData.initSaveStates();
         }
@@ -155,21 +155,18 @@ namespace Haiku.DebugMod {
         }
         #endregion
         #region Save enemies in Scene
-        private static void EnemySpawned(On.EnemyHealth.orig_Start orig, EnemyHealth self)
+        private void OnDestroyGameManager(On.GameManager.orig_OnDestroy orig, GameManager self)
         {
-            // Grab the ID of every Enemy group in a Scene
+            // clear debug's list of enemy death times at the same time that the game clears its list
             orig(self);
-            SaveStates.SaveData.AddID(self.ID);
+            SaveStates.SaveData.ClearEnemyDeathTimes();
         }
-        private static void loadingNewScene(On.LoadNewLevel.orig_OnTriggerEnter2D orig, LoadNewLevel self, object collision)
+
+        private void OnEnemyHealthDie(On.EnemyHealth.orig_Die orig, EnemyHealth self)
         {
-            // When loading a Scene, clear the Hashset of Enemy IDs so that it only contains a list per Scene
-            Collider2D collisionVar = (Collider2D)collision;
-            if (collisionVar.gameObject.tag == "Player")
-            {
-                SaveStates.SaveData.clearEnemyIDHashset();
-            }
-            orig(self, collision);
+            // grab the id of the enemy on death
+            orig(self);
+            SaveStates.SaveData.RegisterDeath(self.ID, self.gameObject.scene.buildIndex, GameManager.instance.timePlayed);
         }
         #endregion
         #endregion
