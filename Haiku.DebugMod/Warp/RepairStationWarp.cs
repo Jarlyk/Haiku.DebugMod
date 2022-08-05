@@ -1,9 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Modding;
+using MonoMod.Cil;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Haiku.DebugMod.Warp
@@ -65,6 +68,7 @@ namespace Haiku.DebugMod.Warp
             On.CameraBehavior.NextUICanvas += CameraBehavior_NextUICanvas;
             On.CameraBehavior.PreviousUICanvas += CameraBehavior_PreviousUICanvas;
             On.CameraBehavior.ResumeHideUI += CameraBehavior_ResumeHideUI;
+            IL.ReplenishHealth.Update += ReplenishHealth_Update;
         }
 
         public static void LoadFromFile(ES3File es3)
@@ -89,9 +93,19 @@ namespace Haiku.DebugMod.Warp
             es3.Save("warpVisitedScenes", string.Join(",", visitedScenes));
         }
 
-        public static void OnSceneLoaded(int sceneId)
+        public static void OnUseRepairStation()
         {
-            visitedScenes.Add(sceneId);
+            visitedScenes.Add(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        private static void ReplenishHealth_Update(ILContext il)
+        {
+            var c = new ILCursor(il);
+
+            c.GotoNext(i => i.MatchLdarg(0),
+                       i => i.MatchLdcR4(out _),
+                       i => i.MatchStfld("ReplenishHealth", "resetTimer"));
+            c.EmitDelegate((Action)OnUseRepairStation);
         }
 
         private static void CameraBehavior_ResumeHideUI(On.CameraBehavior.orig_ResumeHideUI orig, CameraBehavior self)

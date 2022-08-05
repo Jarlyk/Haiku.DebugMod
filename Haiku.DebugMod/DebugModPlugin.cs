@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 
 namespace Haiku.DebugMod
 {
-    [BepInPlugin("haiku.debugmod", "Haiku Debug Mod", "1.0.3.0")]
+    [BepInPlugin("haiku.debugmod", "Haiku Debug Mod", "1.0.5.0")]
     [BepInDependency("haiku.mapi", "1.0.1.0")]
     public sealed class DebugModPlugin : BaseUnityPlugin
     {
@@ -26,16 +26,10 @@ namespace Haiku.DebugMod
 
             On.PCSaveManager.Load += PCSaveManager_Load;
             On.PCSaveManager.Save += PCSaveManager_Save;
-            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
             gameObject.AddComponent<HitboxRendering>();
             gameObject.AddComponent<DebugUI>();
             gameObject.AddComponent<Hooks>();
-        }
-
-        private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            RepairStationWarp.OnSceneLoaded(scene.buildIndex);
         }
 
         private void PCSaveManager_Save(On.PCSaveManager.orig_Save orig, PCSaveManager self, string filepath)

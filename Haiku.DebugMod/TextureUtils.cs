@@ -9,7 +9,7 @@ namespace Haiku.DebugMod {
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(key)) {
                 var data = new byte[(int)stream.Length];
                 stream.Read(data, 0, data.Length);
-                var tex = new Texture2D(width, height);
+                var tex = new Texture2D(width, height, TextureFormat.BGRA32, false);
                 tex.LoadImage(data);
                 return tex;
             }
