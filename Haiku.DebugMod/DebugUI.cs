@@ -1,6 +1,7 @@
 using System.Linq;
 using System.IO;
 using System.Collections;
+using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Modding;
@@ -92,10 +93,6 @@ namespace Haiku.DebugMod {
                 DoShowStats();
             }
 
-            if (Event.current is { type: EventType.Repaint })
-            {
-                HitboxRendering.Render();
-            }
             #endregion
 
             #region SaveStateUI
@@ -203,35 +200,87 @@ namespace Haiku.DebugMod {
                                    gm.chipSlot.Length + gm.trainStations.Length + 9 + 8 + 3);
             completePercent += bossCount;
 
-            string stats = $"Map Tiles {tileCount}/{gm.mapTiles.Length}" + "\n" +
-                           $"Disruptors {disruptCount}/{gm.disruptors.Length}" + "\n" +
-                           $"Chips {chipCount}/{gm.chip.Length}" + "\n" +
-                           $"Chip Slots {slotCount}/{gm.chipSlot.Length}" + "\n" +
-                           $"Power Cells {cellCount}/{gm.powerCells.Length}" + "\n" +
-                           $"Bosses {bossCount}/{gm.bosses.Length}" + "\n" +
-                           $"Stations {stationCount}/{gm.trainStations.Length}" + "\n" +
-                           $"Coolant {gm.coolingPoints}/3" + "\n" +
-                           $"Health {gm.maxHealth}/8" + "\n" +
-                           $"Abilities {abilityCount}/9" + "\n" +
-                           $"Completion {completePercent:0.00}%";
+            var builder = new StringBuilder();
+            if (Settings.ShowCompletionDetails.Value)
+            {
+                builder.Append($"Map Tiles {tileCount}/{gm.mapTiles.Length}" + "\n" +
+                               $"Disruptors {disruptCount}/{gm.disruptors.Length}" + "\n" +
+                               $"Chips {chipCount}/{gm.chip.Length}" + "\n" +
+                               $"Chip Slots {slotCount}/{gm.chipSlot.Length}" + "\n" +
+                               $"Power Cells {cellCount}/{gm.powerCells.Length}" + "\n" +
+                               $"Bosses {bossCount}/{gm.bosses.Length}" + "\n" +
+                               $"Stations {stationCount}/{gm.trainStations.Length}" + "\n" +
+                               $"Coolant {gm.coolingPoints}/3" + "\n" +
+                               $"Health {gm.maxHealth}/8" + "\n" +
+                               $"Abilities {abilityCount}/9");
+            }
+
+            builder.Append($"\nCompletion {completePercent:0.00}%");
             var player = PlayerScript.instance;
             if (player)
             {
-                stats += "\n" + $"Invuln {player.isInvunerableTimer:0.00}s";
+                builder.Append($"\nInvuln {player.isInvunerableTimer:0.00}s");
             }
 
             var activeScene = SceneManager.GetActiveScene();
             if (activeScene.IsValid())
             {
-                stats += "\n" + $"Scene# {activeScene.buildIndex} : {activeScene.name}";
+                builder.Append($"\nScene# {activeScene.buildIndex} : {activeScene.name}");
             }
 
             if (player)
             {
-                stats += "\n" + $"Player Position: {player.transform.position.x} : {player.transform.position.y}";
+                builder.Append($"\nPlayer Position: {player.transform.position.x} : {player.transform.position.y}");
             }
 
-            ShowStatsText.GetComponent<Text>().text = stats;
+            if (Settings.ShowBossInfo.Value)
+            {
+                int sceneId = SceneManager.GetActiveScene().buildIndex;
+                if (sceneId == 201)
+                {
+                    var boss = FindObjectOfType<BunkerSentient>();
+                    if (boss)
+                    {
+                        builder.Append($"\nNeutron State: {boss.state}");
+                        builder.Append($"\nNeutron HP: {boss.currentHealth} / {boss.phaseTwoHealth}");
+                        var phaseText = (boss.phase2 ? "2" : "1");
+                        builder.Append($"\nNeutron Phase {phaseText}");
+                        if (boss.bounceHits > 0)
+                        {
+                            builder.Append($"\nNeutron Bounces: {boss.bounceHits}/{boss.maxBounceHits}");
+                        }
+                    }
+                }
+                else if (sceneId == 19)
+                {
+                    var boss = FindObjectOfType<SwingingGarbageMagnet>();
+                    if (boss)
+                    {
+                        builder.Append("\nGarbage Magnet State: ");
+                        if (boss.phaseTwo) builder.Append("phase2 ");
+                        if (boss.magnetDive) builder.Append("magnetDive ");
+                        if (boss.isSwinging) builder.Append("isSwinging ");
+                        if (boss.isMovingTowards) builder.Append("isMovingTowards ");
+                        if (boss.dead) builder.Append("dead");
+                        builder.Append($"\nGM HP: {boss.currentHealth} / {boss.health}");
+                        builder.Append($"\nGM Timer: {boss.timer}");
+                    }
+                }
+                else if (sceneId == 84)
+                {
+                    var boss = FindObjectOfType<ElectricSentientRework>();
+                    if (boss)
+                    {
+                        builder.Append("\nElectron State: ");
+                        if (boss.phaseTwo) builder.Append("phase2 ");
+                        if (boss.canMove) builder.Append("canMove ");
+                        if (boss.followPlayer) builder.Append("followPlayer");
+                        builder.Append($"\nElectron HP: {boss.currentHealth} / {boss.health}");
+                    }
+                }
+            }
+
+            ShowStatsText.GetComponent<Text>().text = builder.ToString();
         }
     }
 }

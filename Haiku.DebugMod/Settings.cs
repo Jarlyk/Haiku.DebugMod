@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
-using System.Collections.Generic;
 using Modding;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Haiku.DebugMod
 {
@@ -21,6 +21,8 @@ namespace Haiku.DebugMod
         public static ConfigEntry<KeyboardShortcut> CameraIncZoom;
         public static ConfigEntry<KeyboardShortcut> CameraDecZoom;
         // public static ConfigEntry<KeyboardShortcut> CameraResetZoom;
+        public static ConfigEntry<bool> ShowCompletionDetails;
+        public static ConfigEntry<bool> ShowBossInfo;
         public static ConfigEntry<bool> UnlimitedWarp;
         #endregion
 
@@ -54,6 +56,8 @@ namespace Haiku.DebugMod
             IgnoreHeat = config.Bind("Cheats", "IgnoreHeat", new KeyboardShortcut(KeyCode.F3), ConfigManagerUtil.setPosition(3));
             ShowHitboxes = config.Bind("Cheats", "ShowHitboxes", new KeyboardShortcut(KeyCode.F4), ConfigManagerUtil.setPosition(2));
             ShowStats = config.Bind("Cheats", "ShowStats", new KeyboardShortcut(KeyCode.F5), ConfigManagerUtil.setPosition(1));
+            ShowCompletionDetails = config.Bind("Cheats", "ShowCompletionDetails", true);
+            ShowBossInfo = config.Bind("Cheats", "ShowBossInfo", true);
             ConfigManagerUtil.createButton(config, MiniCheats.GiveAllMaps, "Cheats", "GiveMaps", "Give all Maps");
             UnlimitedWarp = config.Bind("Cheats", "UnlimitedWarp", false,
                                         "Allow warping to save stations that have not yet been visited");
