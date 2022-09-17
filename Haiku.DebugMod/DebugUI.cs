@@ -278,6 +278,13 @@ namespace Haiku.DebugMod {
                         builder.Append($"\nElectron HP: {boss.currentHealth} / {boss.health}");
                     }
                 }
+                else if (sceneId == 144)
+                {
+                    var boss = FindObjectOfType<FightManager>();
+                    builder.Append($"\nProton hp: {boss.fHealth}");
+                    builder.Append($"\nNeutron hp: {boss.bHealth}");
+                    builder.Append($"\nElectron hp: {boss.eHealth}");
+                }
             }
 
             ShowStatsText.GetComponent<Text>().text = builder.ToString();
