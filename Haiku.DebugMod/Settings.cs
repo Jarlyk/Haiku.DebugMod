@@ -59,6 +59,7 @@ namespace Haiku.DebugMod
             ShowCompletionDetails = config.Bind("Cheats", "ShowCompletionDetails", true);
             ShowBossInfo = config.Bind("Cheats", "ShowBossInfo", true);
             ConfigManagerUtil.createButton(config, MiniCheats.GiveAllMaps, "Cheats", "GiveMaps", "Give all Maps");
+            ConfigManagerUtil.createButton(config, MiniCheats.GiveAllChips, "Cheats", "GiveChips", "Give all Chips and Chip Slots");
             UnlimitedWarp = config.Bind("Cheats", "UnlimitedWarp", false,
                                         "Allow warping to save stations that have not yet been visited");
             #endregion

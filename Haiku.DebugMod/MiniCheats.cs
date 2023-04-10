@@ -37,5 +37,17 @@ namespace Haiku.DebugMod {
             GameManager.instance.showVendors = true;
             GameManager.instance.showTrainStations = true;
         }
+
+        public static void GiveAllChips()
+        {
+            for (int i = 0; i < GameManager.instance.chip.Length; i++)
+            {
+                GameManager.instance.chip[i].collected = true;
+            }
+            for (int i = 0; i < GameManager.instance.chipSlot.Length; i++)
+            {
+                GameManager.instance.chipSlot[i].collected = true;
+            }
+        }
     }
 }
