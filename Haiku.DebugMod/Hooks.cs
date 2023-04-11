@@ -21,6 +21,11 @@ namespace Haiku.DebugMod {
 
         private static bool isPixelPerfect = false;
 
+        // The cursor lock toggling is not necessary when the cursor is
+        // permanently unlocked anyway.
+        private static readonly bool isCursorUnlockInstalled =
+            Type.GetType("Haiku.CursorUnlock.CursorUnlockPlugin, CursorUnlock") != null;
+
         void Start()
         {
             #region Cheats
@@ -31,7 +36,11 @@ namespace Haiku.DebugMod {
             #endregion
             #region Map Warp
             On.PlayerLocation.OnEnable += QuickMapEnabled;
-            On.CameraBehavior.Update += cameraUpdate;
+            if (!isCursorUnlockInstalled)
+            {
+                On.CameraBehavior.Update += UnlockCursorWhenMapOpen;
+            }
+            
             On.CanvasAspectScaler.Update += MainCanvasUpdate;
             On.LoadNewLevel.Awake += TransitionToNextRoom;
             On.MapTile.CheckMyTile += MapTileCheck;
@@ -97,12 +106,15 @@ namespace Haiku.DebugMod {
         {
             // Enable Mouse after Quick Map is opened and save all Rooms as GameObjects
             orig(self);
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            if (!isCursorUnlockInstalled)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
             MapWarp.MapRooms = self.rooms;
         }
 
-        private static void cameraUpdate(On.CameraBehavior.orig_Update orig, CameraBehavior self)
+        private static void UnlockCursorWhenMapOpen(On.CameraBehavior.orig_Update orig, CameraBehavior self)
         {
             // Keep Cursor visible even if you click out of the window and back into it while Map is Opened (OnApplicationFocus would override it)
             orig(self);
