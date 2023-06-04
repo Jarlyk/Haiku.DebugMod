@@ -49,5 +49,10 @@ namespace Haiku.DebugMod {
                 GameManager.instance.chipSlot[i].collected = true;
             }
         }
+
+        public static void IncCoolingPoints()
+        {
+            GameManager.instance.coolingPoints = (GameManager.instance.coolingPoints + 1) % 4;
+        }
     }
 }
