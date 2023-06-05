@@ -344,6 +344,8 @@ namespace Haiku.DebugMod.Warp
             AddStation(warp, uiArea, 161, "_SAVE_AREA_161", "Sunken Left", 2, 1);
             AddStation(warp, uiArea, 156, "_SAVE_AREA_156", "Sunken Right", 2, 2);
             AddStation(warp, uiArea, 167, "_SAVE_AREA_167", "Mainframe", 2, 3);
+            AddStation(warp, uiArea, 250, "_SAVE_AREA_250", "Boss Rush Doors", 2, 4);
+            AddStation(warp, uiArea, 255, "_SAVE_AREA_255", "Elegy", 2, 5);
         }
 
         private static void SetTextTmp(GameObject panel, string objName, string text)
