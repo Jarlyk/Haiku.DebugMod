@@ -61,6 +61,7 @@ namespace Haiku.DebugMod
             ConfigManagerUtil.createButton(config, MiniCheats.GiveAllMaps, "Cheats", "GiveMaps", "Give all Maps");
             ConfigManagerUtil.createButton(config, MiniCheats.GiveAllChips, "Cheats", "GiveChips", "Give all Chips and Chip Slots");
             ConfigManagerUtil.createButton(config, MiniCheats.IncCoolingPoints, "Cheats", "IncrementCoolant", "Increment the amount of coolant by 1 (wraps around at max)");
+            ConfigManagerUtil.createButton(config, MiniCheats.GiveAllCapsules, "Cheats", "GiveCapsules", "Give all 4 extra Capsules");
             UnlimitedWarp = config.Bind("Cheats", "UnlimitedWarp", false,
                                         "Allow warping to save stations that have not yet been visited");
             #endregion

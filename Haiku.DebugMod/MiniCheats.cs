@@ -54,5 +54,17 @@ namespace Haiku.DebugMod {
         {
             GameManager.instance.coolingPoints = (GameManager.instance.coolingPoints + 1) % 4;
         }
+
+        public static void GiveAllCapsules()
+        {
+            const int limit = 8;
+            
+            if (GameManager.instance.maxHealth < limit)
+            {
+
+                GameManager.instance.maxHealth = limit;
+                PlayerHealth.instance.AddHealth(limit - PlayerHealth.instance.currentHealth);
+            }
+        }
     }
 }
