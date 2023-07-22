@@ -33,6 +33,7 @@ namespace Haiku.DebugMod {
             IL.PlayerHealth.StunAndTakeDamage += UpdateTakeDamage;
             IL.ManaManager.AddHeat += UpdateAddHeat;
             On.CameraBehavior.Update += CameraFollow;
+            On.AllChipsPanel.ChangeChipInChipsPanel += UnlimitedChipChanges;
             #endregion
             #region Map Warp
             On.PlayerLocation.OnEnable += QuickMapEnabled;
@@ -70,6 +71,25 @@ namespace Haiku.DebugMod {
                 self.transform.GetChild(7).gameObject.SetActive(!MiniCheats.CameraFollow);
             } 
             orig(self);
+        }
+
+        private static void UnlimitedChipChanges(On.AllChipsPanel.orig_ChangeChipInChipsPanel orig, AllChipsPanel self)
+        {
+            if (!Settings.UnlimitedChipChanges.Value)
+            {
+                orig(self);
+                return;
+            }
+            var origCanChange = PlayerScript.instance.canChangeChips;
+            PlayerScript.instance.canChangeChips = true;
+            try
+            {
+                orig(self);
+            }
+            finally
+            {
+                PlayerScript.instance.canChangeChips = origCanChange;
+            }
         }
 
         #region Hooks

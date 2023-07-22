@@ -24,6 +24,7 @@ namespace Haiku.DebugMod
         public static ConfigEntry<bool> ShowCompletionDetails;
         public static ConfigEntry<bool> ShowBossInfo;
         public static ConfigEntry<bool> UnlimitedWarp;
+        public static ConfigEntry<bool> UnlimitedChipChanges;
         #endregion
 
         #region SaveStates
@@ -64,6 +65,7 @@ namespace Haiku.DebugMod
             ConfigManagerUtil.createButton(config, MiniCheats.GiveAllCapsules, "Cheats", "GiveCapsules", "Give all 4 extra Capsules");
             UnlimitedWarp = config.Bind("Cheats", "UnlimitedWarp", false,
                                         "Allow warping to save stations that have not yet been visited");
+            UnlimitedChipChanges = config.Bind("Cheats", "UnlimitedChipChanges", false, "Allow changing chips anywhere");
             #endregion
 
             #region SaveStates
