@@ -55,6 +55,16 @@ namespace Haiku.DebugMod {
             GameManager.instance.coolingPoints = (GameManager.instance.coolingPoints + 1) % 4;
         }
 
+        public static void IncAttackDamage()
+        {
+            GameManager.instance.attackDamage += 2;
+        }
+
+        public static void DecAttackDamage()
+        {
+            GameManager.instance.attackDamage -= 2;
+        }
+
         public static void GiveAllCapsules()
         {
             const int limit = 8;

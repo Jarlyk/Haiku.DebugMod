@@ -61,8 +61,10 @@ namespace Haiku.DebugMod
             ShowBossInfo = config.Bind("Cheats", "ShowBossInfo", true);
             ConfigManagerUtil.createButton(config, MiniCheats.GiveAllMaps, "Cheats", "GiveMaps", "Give all Maps");
             ConfigManagerUtil.createButton(config, MiniCheats.GiveAllChips, "Cheats", "GiveChips", "Give all Chips and Chip Slots");
-            ConfigManagerUtil.createButton(config, MiniCheats.IncCoolingPoints, "Cheats", "IncrementCoolant", "Increment the amount of coolant by 1 (wraps around at max)");
             ConfigManagerUtil.createButton(config, MiniCheats.GiveAllCapsules, "Cheats", "GiveCapsules", "Give all 4 extra Capsules");
+            ConfigManagerUtil.createButton(config, MiniCheats.IncCoolingPoints, "Cheats", "IncrementCoolant", "Increment the amount of coolant by 1 (wraps around at max)");
+            ConfigManagerUtil.createButton(config, MiniCheats.DecAttackDamage, "Cheats", "DecrementAttackDamage", "Decrease sword damage by 2");
+            ConfigManagerUtil.createButton(config, MiniCheats.IncAttackDamage, "Cheats", "IncrementAttackDamage", "Increase sword damage by 2");
             UnlimitedWarp = config.Bind("Cheats", "UnlimitedWarp", false,
                                         "Allow warping to save stations that have not yet been visited");
             UnlimitedChipChanges = config.Bind("Cheats", "UnlimitedChipChanges", false, "Allow changing chips anywhere");
