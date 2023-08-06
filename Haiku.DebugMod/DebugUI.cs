@@ -233,6 +233,8 @@ namespace Haiku.DebugMod {
                 builder.Append($"\nPlayer Position: {player.transform.position.x} : {player.transform.position.y}");
             }
 
+            builder.Append($"\nAttack Damage: {gm.attackDamage}");
+
             if (Settings.ShowBossInfo.Value)
             {
                 int sceneId = SceneManager.GetActiveScene().buildIndex;
