@@ -76,5 +76,25 @@ namespace Haiku.DebugMod {
                 PlayerHealth.instance.AddHealth(limit - PlayerHealth.instance.currentHealth);
             }
         }
+
+        public static void GiveAllPowerCells()
+        {
+            var pcs = GameManager.instance.powerCells;
+            for (var i = 0; i < pcs.Length; i++)
+            {
+                pcs[i].collected = true;
+            }
+        }
+
+        public static void OpenAllDoors()
+        {
+            var doors = GameManager.instance.doors;
+            for (var i = 0; i < doors.Length; i++)
+            {
+                doors[i].opened = true;
+            }
+            InventoryManager.instance.AddItem(7);
+            InventoryManager.instance.AddItem(8);
+        }
     }
 }

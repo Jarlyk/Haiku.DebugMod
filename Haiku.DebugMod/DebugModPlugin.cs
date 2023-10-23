@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 
 namespace Haiku.DebugMod
 {
-    [BepInPlugin("haiku.debugmod", "Haiku Debug Mod", "1.2.0.0")]
+    [BepInPlugin("haiku.debugmod", "Haiku Debug Mod", "1.3.0.0")]
     [BepInDependency("haiku.mapi", "1.0.1.0")]
     public sealed class DebugModPlugin : BaseUnityPlugin
     {
